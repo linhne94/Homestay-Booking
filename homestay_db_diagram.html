@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Homestay Booking — DB Diagram</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #0d0f14;
+    --bg2: #13161d;
+    --bg3: #1a1e28;
+    --border: #252a38;
+    --border2: #2e3548;
+    --text: #e2e6f0;
+    --text2: #8892aa;
+    --text3: #4f5a72;
+    --accent: #6c8fff;
+    --accent2: #4f73f5;
+
+    --c-branch:    #6c8fff;
+    --c-room:      #4ecdc4;
+    --c-user:      #f7a35c;
+    --c-booking:   #a78bfa;
+    --c-payment:   #f472b6;
+    --c-content:   #34d399;
+    --c-ota:       #fb923c;
+    --c-report:    #60a5fa;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: auto;
+  }
+
+  header {
+    padding: 20px 32px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 100;
+  }
+
+  header h1 {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--text);
+  }
+
+  header span {
+    font-size: 12px;
+    color: var(--text3);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .legend {
+    margin-left: auto;
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--text2);
+  }
+
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 2px;
+  }
+
+  .canvas {
+    padding: 32px;
+    position: relative;
+    min-width: 1600px;
+  }
+
+  svg#lines {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    overflow: visible;
+  }
+
+  .tables-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 220px);
+    gap: 20px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .table-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+
+  .table-card:hover {
+    border-color: var(--border2);
+    box-shadow: 0 0 0 1px var(--border2), 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  .table-header {
+    padding: 9px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .table-dot {
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .table-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--text);
+  }
+
+  .table-group {
+    font-size: 10px;
+    color: var(--text3);
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .table-fields {
+    padding: 6px 0;
+  }
+
+  .field-row {
+    display: flex;
+    align-items: center;
+    padding: 3px 12px;
+    gap: 6px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    transition: background 0.15s;
+  }
+
+  .field-row:hover {
+    background: var(--bg3);
+  }
+
+  .field-badge {
+    font-size: 9px;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+    min-width: 26px;
+    text-align: center;
+  }
+
+  .badge-pk {
+    background: rgba(108,143,255,0.15);
+    color: var(--c-branch);
+    border: 1px solid rgba(108,143,255,0.3);
+  }
+
+  .badge-fk {
+    background: rgba(167,139,250,0.12);
+    color: var(--c-booking);
+    border: 1px solid rgba(167,139,250,0.25);
+  }
+
+  .badge-new {
+    background: rgba(52,211,153,0.12);
+    color: #34d399;
+    border: 1px solid rgba(52,211,153,0.3);
+    font-size: 9px;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+    min-width: 26px;
+    text-align: center;
+  }
+
+  .field-name {
+    color: var(--text);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .field-type {
+    color: var(--text3);
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+
+  .field-row.key-field .field-name {
+    color: var(--text2);
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 4px 0;
+  }
+
+  .group-label {
+    grid-column: 1 / -1;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text3);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 8px 0 4px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
+  }
+
+  .span-2 { grid-column: span 2; }
+  .span-3 { grid-column: span 3; }
+</style>
+</head>
+<body>
+
+<header>
+  <div style="width:28px;height:28px;background:linear-gradient(135deg,#6c8fff,#a78bfa);border-radius:7px;display:flex;align-items:center;justify-content:center;">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" fill="white" opacity="0.9"/><rect x="8" y="1" width="5" height="5" rx="1" fill="white" opacity="0.7"/><rect x="1" y="8" width="5" height="5" rx="1" fill="white" opacity="0.7"/><rect x="8" y="8" width="5" height="5" rx="1" fill="white" opacity="0.5"/></svg>
+  </div>
+  <div>
+    <h1>Homestay Booking System</h1>
+    <span>Database Schema · 21 tables · Guest Checkout update</span>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--c-branch)"></div>Branch & Room</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--c-user)"></div>User & Staff</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--c-booking)"></div>Booking</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--c-payment)"></div>Payment</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--c-content)"></div>Content</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--c-ota)"></div>OTA & Report</div>
+  </div>
+</header>
+
+<div class="canvas">
+  <svg id="lines"></svg>
+  <div class="tables-grid" id="grid">
+
+    <!-- GROUP: Branch & Room -->
+    <div class="group-label">🏠 Chi nhánh & Phòng</div>
+
+    <div class="table-card" id="t-branch" data-color="var(--c-branch)">
+      <div class="table-header"><div class="table-dot" style="background:var(--c-branch)"></div><span class="table-name">BRANCH</span><span class="table-group">core</span></div>
+      <div class="table-fields">
+        <div class="field-row key-field"><span class="field-badge badge-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">name</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">address</span><span class="field-type">text</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">city</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">latitude</span><span class="field-type">float</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">longitude</span><span class="field-type">float</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">phone</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">email</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">thumbnail_url</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">is_active</span><span class="field-type">bool</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">created_at</span><span class="field-type">ts</span></div>
+      </div>
+    </div>
+
+    <div class="table-card" id="t-room_type" data-color="var(--c-branch)">
+      <div class="table-header"><div class="table-dot" style="background:var(--c-branch)"></div><span class="table-name">ROOM_TYPE</span><span class="table-group">core</span></div>
+      <div class="table-fields">
+        <div class="field-row key-field"><span class="field-badge badge-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">branch_id</span><span class="field-type">uuid</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">name</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">max_guests</span><span class="field-type">int</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">base_price</span><span class="field-type">decimal</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">deposit_rate</span><span class="field-type">decimal</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">description</span><span class="field-type">text</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">thumbnail_url</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">is_active</span><span class="field-type">bool</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">created_at</span><span class="field-type">ts</span></div>
+      </div>
+    </div>
+
+    <div class="table-card" id="t-room" data-color="var(--c-branch)">
+      <div class="table-header"><div class="table-dot" style="background:var(--c-branch)"></div><span class="table-name">ROOM</span><span class="table-group">core</span></div>
+      <div class="table-fields">
+        <div class="field-row key-field"><span class="field-badge badge-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">room_type_id</span><span class="field-type">uuid</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">room_number</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">floor</span><span class="field-type">int</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">status</span><span class="field-type">enum</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">notes</span><span class="field-type">text</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">created_at</span><span class="field-type">ts</span></div>
+      </div>
+    </div>
+
+    <div class="table-card" id="t-room_image" data-color="var(--c-branch)">
+      <div class="table-header"><div class="table-dot" style="background:var(--c-branch)"></div><span class="table-name">ROOM_IMAGE</span><span class="table-group">asset</span></div>
+      <div class="table-fields">
+        <div class="field-row key-field"><span class="field-badge badge-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">room_type_id</span><span class="field-type">uuid</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">image_url</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">sort_order</span><span class="field-type">int</span></div>
+      </div>
+    </div>
+
+    <div class="table-card" id="t-amenity" data-color="var(--c-branch)">
+      <div class="table-header"><div class="table-dot" style="background:var(--c-branch)"></div><span class="table-name">AMENITY</span><span class="table-group">ref</span></div>
+      <div class="table-fields">
+        <div class="field-row key-field"><span class="field-badge badge-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">name</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">icon</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">category</span><span class="field-type">string</span></div>
+      </div>
+    </div>
+
+    <div class="table-card" id="t-room_type_amenity" data-color="var(--c-branch)">
+      <div class="table-header"><div class="table-dot" style="background:var(--c-branch)"></div><span class="table-name">ROOM_TYPE_AMENITY</span><span class="table-group">pivot</span></div>
+      <div class="table-fields">
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">room_type_id</span><span class="field-type">uuid</span></div>
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">amenity_id</span><span class="field-type">uuid</span></div>
+      </div>
+    </div>
+
+    <!-- GROUP: Pricing -->
+    <div class="group-label">💰 Giá & Khuyến mãi</div>
+
+    <div class="table-card" id="t-price_override" data-color="var(--c-content)">
+      <div class="table-header"><div class="table-dot" style="background:var(--c-content)"></div><span class="table-name">PRICE_OVERRIDE</span><span class="table-group">pricing</span></div>
+      <div class="table-fields">
+        <div class="field-row key-field"><span class="field-badge badge-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">room_type_id</span><span class="field-type">uuid</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">date_from</span><span class="field-type">date</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">date_to</span><span class="field-type">date</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">price</span><span class="field-type">decimal</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">reason</span><span class="field-type">string</span></div>
+      </div>
+    </div>
+
+    <div class="table-card" id="t-promotion" data-color="var(--c-content)">
+      <div class="table-header"><div class="table-dot" style="background:var(--c-content)"></div><span class="table-name">PROMOTION</span><span class="table-group">pricing</span></div>
+      <div class="table-fields">
+        <div class="field-row key-field"><span class="field-badge badge-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">branch_id</span><span class="field-type">uuid</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">code</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">name</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">discount_pct</span><span class="field-type">decimal</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">discount_flat</span><span class="field-type">decimal</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">max_discount</span><span class="field-type">decimal</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">min_nights</span><span class="field-type">int</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">usage_limit</span><span class="field-type">int</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">valid_from</span><span class="field-type">date</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">valid_to</span><span class="field-type">date</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">is_active</span><span class="field-type">bool</span></div>
+      </div>
+    </div>
+
+    <div class="table-card" id="t-booking_promotion" data-color="var(--c-content)">
+      <div class="table-header"><div class="table-dot" style="background:var(--c-content)"></div><span class="table-name">BOOKING_PROMOTION</span><span class="table-group">pivot</span></div>
+      <div class="table-fields">
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">booking_id</span><span class="field-type">uuid</span></div>
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">promotion_id</span><span class="field-type">uuid</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">discount_applied</span><span class="field-type">decimal</span></div>
+      </div>
+    </div>
+
+    <div class="table-card" id="t-blackout_date" data-color="var(--c-content)">
+      <div class="table-header"><div class="table-dot" style="background:var(--c-content)"></div><span class="table-name">BLACKOUT_DATE</span><span class="table-group">config</span></div>
+      <div class="table-fields">
+        <div class="field-row key-field"><span class="field-badge badge-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">branch_id</span><span class="field-type">uuid</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">date_from</span><span class="field-type">date</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">date_to</span><span class="field-type">date</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">reason</span><span class="field-type">string</span></div>
+      </div>
+    </div>
+
+    <div class="table-card" id="t-content_translation" data-color="var(--c-content)">
+      <div class="table-header"><div class="table-dot" style="background:var(--c-content)"></div><span class="table-name">CONTENT_TRANSLATION</span><span class="table-group">i18n</span></div>
+      <div class="table-fields">
+        <div class="field-row key-field"><span class="field-badge badge-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">entity_type</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">entity_id</span><span class="field-type">uuid</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">lang_code</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">field_name</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">value</span><span class="field-type">text</span></div>
+      </div>
+    </div>
+
+    <!-- filler -->
+    <div></div>
+
+    <!-- GROUP: User & Staff -->
+    <div class="group-label">👤 Người dùng & Nhân viên</div>
+
+    <div class="table-card" id="t-user" data-color="var(--c-user)">
+      <div class="table-header"><div class="table-dot" style="background:var(--c-user)"></div><span class="table-name">USER</span><span class="table-group">auth</span></div>
+      <div class="table-fields">
+        <div class="field-row key-field"><span class="field-badge badge-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">full_name</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">email</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">phone</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">password_hash</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">role</span><span class="field-type">enum</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">loyalty_points</span><span class="field-type">int</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">preferred_lang</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">avatar_url</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">is_active</span><span class="field-type">bool</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">created_at</span><span class="field-type">ts</span></div>
+      </div>
+    </div>
+
+    <div class="table-card" id="t-staff" data-color="var(--c-user)">
+      <div class="table-header"><div class="table-dot" style="background:var(--c-user)"></div><span class="table-name">STAFF</span><span class="table-group">auth</span></div>
+      <div class="table-fields">
+        <div class="field-row key-field"><span class="field-badge badge-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">user_id</span><span class="field-type">uuid</span></div>
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">branch_id</span><span class="field-type">uuid</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">role</span><span class="field-type">enum</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">is_active</span><span class="field-type">bool</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">created_at</span><span class="field-type">ts</span></div>
+      </div>
+    </div>
+
+    <div class="table-card" id="t-loyalty_transaction" data-color="var(--c-user)">
+      <div class="table-header"><div class="table-dot" style="background:var(--c-user)"></div><span class="table-name">LOYALTY_TRANSACTION</span><span class="table-group">loyalty</span></div>
+      <div class="table-fields">
+        <div class="field-row key-field"><span class="field-badge badge-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">user_id</span><span class="field-type">uuid</span></div>
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">booking_id</span><span class="field-type">uuid</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">points</span><span class="field-type">int</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">type</span><span class="field-type">enum</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">description</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">created_at</span><span class="field-type">ts</span></div>
+      </div>
+    </div>
+
+    <div class="table-card" id="t-notification" data-color="var(--c-user)">
+      <div class="table-header"><div class="table-dot" style="background:var(--c-user)"></div><span class="table-name">NOTIFICATION</span><span class="table-group">notify</span></div>
+      <div class="table-fields">
+        <div class="field-row key-field"><span class="field-badge badge-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">user_id</span><span class="field-type">uuid</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">title</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">body</span><span class="field-type">text</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">type</span><span class="field-type">enum</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">action_url</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">is_read</span><span class="field-type">bool</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">created_at</span><span class="field-type">ts</span></div>
+      </div>
+    </div>
+
+    <!-- 2 fillers -->
+    <div></div><div></div>
+
+    <!-- GROUP: Booking & Payment -->
+    <div class="group-label">📋 Đặt phòng & Thanh toán</div>
+
+    <div class="table-card span-2" id="t-booking" data-color="var(--c-booking)">
+      <div class="table-header"><div class="table-dot" style="background:var(--c-booking)"></div><span class="table-name">BOOKING</span><span class="table-group">core</span></div>
+      <div class="table-fields" style="display:grid;grid-template-columns:1fr 1fr;">
+        <div class="field-row key-field"><span class="field-badge badge-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">user_id</span><span class="field-type">uuid?</span></div>
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">room_id</span><span class="field-type">uuid</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">check_in</span><span class="field-type">date</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">check_out</span><span class="field-type">date</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">num_guests</span><span class="field-type">int</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">total_price</span><span class="field-type">decimal</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">deposit_amount</span><span class="field-type">decimal</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">refund_amount</span><span class="field-type">decimal</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">status</span><span class="field-type">enum</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">source</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">loyalty_pts_used</span><span class="field-type">int</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">loyalty_pts_earned</span><span class="field-type">int</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">special_requests</span><span class="field-type">text</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">created_at</span><span class="field-type">ts</span></div>
+        <div style="grid-column:1/-1;height:1px;background:var(--border);margin:4px 0;"></div>
+        <div style="grid-column:1/-1;padding:3px 12px 2px;font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;letter-spacing:0.06em;">— GUEST CHECKOUT (nullable) —</div>
+        <div class="field-row"><span class="field-badge badge-new">NEW</span><span class="field-name">guest_name</span><span class="field-type">string?</span></div>
+        <div class="field-row"><span class="field-badge badge-new">NEW</span><span class="field-name">guest_email</span><span class="field-type">string?</span></div>
+        <div class="field-row"><span class="field-badge badge-new">NEW</span><span class="field-name">guest_phone</span><span class="field-type">string?</span></div>
+        <div class="field-row"><span class="field-badge badge-new">NEW</span><span class="field-name">guest_token</span><span class="field-type">string?</span></div>
+        <div class="field-row"><span class="field-badge badge-new">NEW</span><span class="field-name">token_expires_at</span><span class="field-type">ts?</span></div>
+      </div>
+    </div>
+
+    <div class="table-card" id="t-payment" data-color="var(--c-payment)">
+      <div class="table-header"><div class="table-dot" style="background:var(--c-payment)"></div><span class="table-name">PAYMENT</span><span class="table-group">finance</span></div>
+      <div class="table-fields">
+        <div class="field-row key-field"><span class="field-badge badge-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">booking_id</span><span class="field-type">uuid</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">amount</span><span class="field-type">decimal</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">method</span><span class="field-type">enum</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">type</span><span class="field-type">enum</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">status</span><span class="field-type">enum</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">transaction_ref</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">gateway_response</span><span class="field-type">text</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">paid_at</span><span class="field-type">ts</span></div>
+      </div>
+    </div>
+
+    <div class="table-card" id="t-refund" data-color="var(--c-payment)">
+      <div class="table-header"><div class="table-dot" style="background:var(--c-payment)"></div><span class="table-name">REFUND</span><span class="table-group">finance</span></div>
+      <div class="table-fields">
+        <div class="field-row key-field"><span class="field-badge badge-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">payment_id</span><span class="field-type">uuid</span></div>
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">booking_id</span><span class="field-type">uuid</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">amount</span><span class="field-type">decimal</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">reason</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">status</span><span class="field-type">enum</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">requested_at</span><span class="field-type">ts</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">processed_at</span><span class="field-type">ts</span></div>
+      </div>
+    </div>
+
+    <div class="table-card" id="t-review" data-color="var(--c-booking)">
+      <div class="table-header"><div class="table-dot" style="background:var(--c-booking)"></div><span class="table-name">REVIEW</span><span class="table-group">social</span></div>
+      <div class="table-fields">
+        <div class="field-row key-field"><span class="field-badge badge-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">booking_id</span><span class="field-type">uuid</span></div>
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">user_id</span><span class="field-type">uuid</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">rating_overall</span><span class="field-type">int</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">rating_cleanliness</span><span class="field-type">int</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">rating_service</span><span class="field-type">int</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">rating_location</span><span class="field-type">int</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">comment</span><span class="field-type">text</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">staff_reply</span><span class="field-type">text</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">is_visible</span><span class="field-type">bool</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">created_at</span><span class="field-type">ts</span></div>
+      </div>
+    </div>
+
+    <!-- GROUP: OTA & Reports -->
+    <div class="group-label">🔗 OTA & Báo cáo</div>
+
+    <div class="table-card" id="t-ota_channel" data-color="var(--c-ota)">
+      <div class="table-header"><div class="table-dot" style="background:var(--c-ota)"></div><span class="table-name">OTA_CHANNEL</span><span class="table-group">ota</span></div>
+      <div class="table-fields">
+        <div class="field-row key-field"><span class="field-badge badge-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">name</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">api_endpoint</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">api_key_hash</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">is_active</span><span class="field-type">bool</span></div>
+      </div>
+    </div>
+
+    <div class="table-card" id="t-ota_room_mapping" data-color="var(--c-ota)">
+      <div class="table-header"><div class="table-dot" style="background:var(--c-ota)"></div><span class="table-name">OTA_ROOM_MAPPING</span><span class="table-group">ota</span></div>
+      <div class="table-fields">
+        <div class="field-row key-field"><span class="field-badge badge-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">room_type_id</span><span class="field-type">uuid</span></div>
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">ota_channel_id</span><span class="field-type">uuid</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">external_room_id</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">price_markup_pct</span><span class="field-type">decimal</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">sync_enabled</span><span class="field-type">bool</span></div>
+      </div>
+    </div>
+
+    <div class="table-card" id="t-ota_sync_log" data-color="var(--c-ota)">
+      <div class="table-header"><div class="table-dot" style="background:var(--c-ota)"></div><span class="table-name">OTA_SYNC_LOG</span><span class="table-group">ota</span></div>
+      <div class="table-fields">
+        <div class="field-row key-field"><span class="field-badge badge-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">ota_room_mapping_id</span><span class="field-type">uuid</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">action</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">status</span><span class="field-type">enum</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">payload</span><span class="field-type">text</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">response</span><span class="field-type">text</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">synced_at</span><span class="field-type">ts</span></div>
+      </div>
+    </div>
+
+    <div class="table-card" id="t-report_snapshot" data-color="var(--c-report)">
+      <div class="table-header"><div class="table-dot" style="background:var(--c-report)"></div><span class="table-name">REPORT_SNAPSHOT</span><span class="table-group">analytics</span></div>
+      <div class="table-fields">
+        <div class="field-row key-field"><span class="field-badge badge-pk">PK</span><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="field-row key-field"><span class="field-badge badge-fk">FK</span><span class="field-name">branch_id</span><span class="field-type">uuid</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">period</span><span class="field-type">string</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">total_revenue</span><span class="field-type">decimal</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">total_bookings</span><span class="field-type">int</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">total_guests</span><span class="field-type">int</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">avg_occupancy_rate</span><span class="field-type">decimal</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">avg_rating</span><span class="field-type">decimal</span></div>
+        <div class="field-row"><span class="field-badge" style="opacity:0"></span><span class="field-name">generated_at</span><span class="field-type">ts</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const relations = [
+  ['t-branch','t-room_type'],
+  ['t-branch','t-promotion'],
+  ['t-branch','t-blackout_date'],
+  ['t-branch','t-staff'],
+  ['t-branch','t-report_snapshot'],
+  ['t-room_type','t-room'],
+  ['t-room_type','t-room_image'],
+  ['t-room_type','t-room_type_amenity'],
+  ['t-room_type','t-price_override'],
+  ['t-room_type','t-ota_room_mapping'],
+  ['t-amenity','t-room_type_amenity'],
+  ['t-user','t-booking'],
+  ['t-user','t-review'],
+  ['t-user','t-notification'],
+  ['t-user','t-loyalty_transaction'],
+  ['t-user','t-staff'],
+  ['t-room','t-booking'],
+  ['t-booking','t-payment'],
+  ['t-booking','t-review'],
+  ['t-booking','t-booking_promotion'],
+  ['t-booking','t-refund'],
+  ['t-booking','t-loyalty_transaction'],
+  ['t-payment','t-refund'],
+  ['t-promotion','t-booking_promotion'],
+  ['t-ota_channel','t-ota_room_mapping'],
+  ['t-ota_room_mapping','t-ota_sync_log'],
+];
+
+function getMidPoint(el) {
+  const r = el.getBoundingClientRect();
+  const cr = document.querySelector('.canvas').getBoundingClientRect();
+  return {
+    x: r.left - cr.left + r.width / 2,
+    y: r.top - cr.top + r.height / 2,
+  };
+}
+
+function getEdgePoint(el, toPoint) {
+  const r = el.getBoundingClientRect();
+  const cr = document.querySelector('.canvas').getBoundingClientRect();
+  const cx = r.left - cr.left + r.width / 2;
+  const cy = r.top - cr.top + r.height / 2;
+  const dx = toPoint.x - cx;
+  const dy = toPoint.y - cy;
+  const w = r.width / 2;
+  const h = r.height / 2;
+  const scaleX = Math.abs(dx) > 0 ? w / Math.abs(dx) : Infinity;
+  const scaleY = Math.abs(dy) > 0 ? h / Math.abs(dy) : Infinity;
+  const scale = Math.min(scaleX, scaleY);
+  return { x: cx + dx * scale, y: cy + dy * scale };
+}
+
+function drawLines() {
+  const svg = document.getElementById('lines');
+  const canvas = document.querySelector('.canvas');
+  svg.setAttribute('viewBox', `0 0 ${canvas.scrollWidth} ${canvas.scrollHeight}`);
+  svg.innerHTML = '';
+
+  const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
+  defs.innerHTML = `<marker id="arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1L7 4L1 7" fill="none" stroke="#3a4258" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>`;
+  svg.appendChild(defs);
+
+  relations.forEach(([a, b]) => {
+    const elA = document.getElementById(a);
+    const elB = document.getElementById(b);
+    if (!elA || !elB) return;
+    const mB = getMidPoint(elB);
+    const mA = getMidPoint(elA);
+    const pA = getEdgePoint(elA, mB);
+    const pB = getEdgePoint(elB, mA);
+
+    const mx = (pA.x + pB.x) / 2;
+    const my = (pA.y + pB.y) / 2;
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    const d = `M${pA.x},${pA.y} C${mx},${pA.y} ${mx},${pB.y} ${pB.x},${pB.y}`;
+    path.setAttribute('d', d);
+    path.setAttribute('fill','none');
+    path.setAttribute('stroke','#2a3048');
+    path.setAttribute('stroke-width','1');
+    path.setAttribute('marker-end','url(#arr)');
+    svg.appendChild(path);
+  });
+}
+
+window.addEventListener('load', () => { setTimeout(drawLines, 100); });
+window.addEventListener('resize', drawLines);
+</script>
+</body>
+</html>

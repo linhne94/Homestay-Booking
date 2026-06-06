@@ -1,0 +1,490 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ==========================================
+// ENUMS
+// ==========================================
+
+enum UserRole {
+  CUSTOMER
+  STAFF
+  ADMIN
+}
+
+enum StaffRole {
+  ADMIN
+  RECEPTIONIST
+  HOUSEKEEPER
+}
+
+enum RoomStatus {
+  AVAILABLE
+  OCCUPIED
+  CLEANING
+  MAINTENANCE
+}
+
+enum BookingStatus {
+  PENDING_PAYMENT
+  CONFIRMED
+  CHECKED_IN
+  CHECKED_OUT
+  CANCELLED
+}
+
+enum PaymentMethod {
+  MOMO
+  VNPAY
+  CASH
+}
+
+enum PaymentType {
+  DEPOSIT
+  FULL
+  FINAL
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum RefundStatus {
+  PENDING
+  PROCESSED
+  REJECTED
+}
+
+enum LoyaltyTransactionType {
+  EARNED
+  USED
+  REFUNDED
+}
+
+enum OtaSyncStatus {
+  SUCCESS
+  FAILED
+}
+
+// ==========================================
+// MODELS: CHI NHÁNH & PHÒNG (BRANCH & ROOM)
+// ==========================================
+
+model Branch {
+  id            String   @id @default(uuid()) @db.Uuid
+  name          String
+  address       String   @db.Text
+  city          String
+  latitude      Float
+  longitude     Float
+  phone         String
+  email         String
+  thumbnail_url String
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+
+  // Relations
+  room_types       RoomType[]
+  promotions       Promotion[]
+  blackout_dates   BlackoutDate[]
+  staffs           Staff[]
+  report_snapshots ReportSnapshot[]
+
+  @@map("BRANCH")
+}
+
+model RoomType {
+  id            String   @id @default(uuid()) @db.Uuid
+  branch_id     String   @db.Uuid
+  name          String
+  max_guests    Int
+  base_price    Decimal  @db.Decimal(12, 2)
+  deposit_rate  Decimal  @default(0.50) @db.Decimal(3, 2) // e.g. 0.50 for 50%
+  description   String   @db.Text
+  thumbnail_url String
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+
+  // Relations
+  branch           Branch             @relation(fields: [branch_id], references: [id], onDelete: Cascade)
+  rooms            Room[]
+  room_images      RoomImage[]
+  amenities        RoomTypeAmenity[]
+  price_overrides  PriceOverride[]
+  ota_mappings     OtaRoomMapping[]
+
+  @@map("ROOM_TYPE")
+}
+
+model Room {
+  id           String     @id @default(uuid()) @db.Uuid
+  room_type_id String     @db.Uuid
+  room_number  String
+  floor        Int
+  status       RoomStatus @default(AVAILABLE)
+  notes        String?    @db.Text
+  created_at   DateTime   @default(now())
+
+  // Relations
+  room_type RoomType  @relation(fields: [room_type_id], references: [id], onDelete: Cascade)
+  bookings  Booking[]
+
+  @@map("ROOM")
+}
+
+model RoomImage {
+  id           String @id @default(uuid()) @db.Uuid
+  room_type_id String @db.Uuid
+  image_url    String
+  sort_order   Int    @default(0)
+
+  // Relations
+  room_type RoomType @relation(fields: [room_type_id], references: [id], onDelete: Cascade)
+
+  @@map("ROOM_IMAGE")
+}
+
+model Amenity {
+  id       String @id @default(uuid()) @db.Uuid
+  name     String
+  icon     String
+  category String // e.g. "Room Amenities", "Shared Facilities"
+
+  // Relations
+  room_types RoomTypeAmenity[]
+
+  @@map("AMENITY")
+}
+
+model RoomTypeAmenity {
+  room_type_id String @db.Uuid
+  amenity_id   String @db.Uuid
+
+  // Relations
+  room_type RoomType @relation(fields: [room_type_id], references: [id], onDelete: Cascade)
+  amenity   Amenity  @relation(fields: [amenity_id], references: [id], onDelete: Cascade)
+
+  @@id([room_type_id, amenity_id])
+  @@map("ROOM_TYPE_AMENITY")
+}
+
+// ==========================================
+// MODELS: GIÁ & KHUYẾN MÃI (PRICING & PROMOTION)
+// ==========================================
+
+model PriceOverride {
+  id           String   @id @default(uuid()) @db.Uuid
+  room_type_id String   @db.Uuid
+  date_from    DateTime @db.Date
+  date_to      DateTime @db.Date
+  price        Decimal  @db.Decimal(12, 2)
+  reason       String
+
+  // Relations
+  room_type RoomType @relation(fields: [room_type_id], references: [id], onDelete: Cascade)
+
+  @@map("PRICE_OVERRIDE")
+}
+
+model Promotion {
+  id           String   @id @default(uuid()) @db.Uuid
+  branch_id    String   @db.Uuid
+  code         String   @unique
+  name         String
+  discount_pct Decimal? @db.Decimal(5, 2) // e.g. 10.00 for 10%
+  discount_flat Decimal? @db.Decimal(12, 2)
+  max_discount Decimal? @db.Decimal(12, 2)
+  min_nights   Int?     @default(1)
+  usage_limit  Int?
+  valid_from   DateTime @db.Date
+  valid_to     DateTime @db.Date
+  is_active    Boolean  @default(true)
+
+  // Relations
+  branch   Branch             @relation(fields: [branch_id], references: [id], onDelete: Cascade)
+  bookings BookingPromotion[]
+
+  @@map("PROMOTION")
+}
+
+model BookingPromotion {
+  booking_id       String  @db.Uuid
+  promotion_id     String  @db.Uuid
+  discount_applied Decimal @db.Decimal(12, 2)
+
+  // Relations
+  booking   Booking   @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  promotion Promotion @relation(fields: [promotion_id], references: [id], onDelete: Cascade)
+
+  @@id([booking_id, promotion_id])
+  @@map("BOOKING_PROMOTION")
+}
+
+model BlackoutDate {
+  id         String   @id @default(uuid()) @db.Uuid
+  branch_id  String   @db.Uuid
+  date_from  DateTime @db.Date
+  date_to    DateTime @db.Date
+  reason     String
+
+  // Relations
+  branch Branch @relation(fields: [branch_id], references: [id], onDelete: Cascade)
+
+  @@map("BLACKOUT_DATE")
+}
+
+model ContentTranslation {
+  id          String @id @default(uuid()) @db.Uuid
+  entity_type String // e.g. "RoomType", "Amenity"
+  entity_id   String @db.Uuid
+  lang_code   String // e.g. "vi", "en"
+  field_name  String // e.g. "description", "name"
+  value       String @db.Text
+
+  @@unique([entity_type, entity_id, lang_code, field_name])
+  @@map("CONTENT_TRANSLATION")
+}
+
+// ==========================================
+// MODELS: NGƯỜI DÙNG & NHÂN VIÊN (USER & STAFF)
+// ==========================================
+
+model User {
+  id            String   @id @default(uuid()) @db.Uuid
+  full_name     String
+  email         String   @unique
+  phone         String?
+  password_hash String?
+  role          UserRole @default(CUSTOMER)
+  loyalty_points Int     @default(0)
+  preferred_lang String? @default("vi")
+  avatar_url    String?
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+
+  // Relations
+  bookings             Booking[]
+  reviews              Review[]
+  notifications        Notification[]
+  staff_profile        Staff?
+  loyalty_transactions LoyaltyTransaction[]
+
+  @@map("USER")
+}
+
+model Staff {
+  id        String    @id @default(uuid()) @db.Uuid
+  user_id   String    @unique @db.Uuid
+  branch_id String    @db.Uuid
+  role      StaffRole @default(RECEPTIONIST)
+  is_active Boolean   @default(true)
+  created_at DateTime  @default(now())
+
+  // Relations
+  user   User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  branch Branch @relation(fields: [branch_id], references: [id], onDelete: Cascade)
+
+  @@map("STAFF")
+}
+
+model LoyaltyTransaction {
+  id          String                 @id @default(uuid()) @db.Uuid
+  user_id     String                 @db.Uuid
+  booking_id  String?                @db.Uuid
+  points      Int
+  type        LoyaltyTransactionType
+  description String
+  created_at  DateTime               @default(now())
+
+  // Relations
+  user    User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  booking Booking? @relation(fields: [booking_id], references: [id], onDelete: SetNull)
+
+  @@map("LOYALTY_TRANSACTION")
+}
+
+model Notification {
+  id         String   @id @default(uuid()) @db.Uuid
+  user_id    String   @db.Uuid
+  title      String
+  body       String   @db.Text
+  type       String   // e.g. "BookingStatus", "Promotion"
+  action_url String?
+  is_read    Boolean  @default(false)
+  created_at DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("NOTIFICATION")
+}
+
+// ==========================================
+// MODELS: ĐẶT PHÒNG & THANH TOÁN (BOOKING & FINANCE)
+// ==========================================
+
+model Booking {
+  id                 String        @id @default(uuid()) @db.Uuid
+  user_id            String?       @db.Uuid
+  room_id            String        @db.Uuid
+  check_in           DateTime      @db.Date
+  check_out          DateTime      @db.Date
+  num_guests         Int
+  total_price        Decimal       @db.Decimal(12, 2)
+  deposit_amount     Decimal       @db.Decimal(12, 2)
+  refund_amount      Decimal       @default(0) @db.Decimal(12, 2)
+  status             BookingStatus @default(PENDING_PAYMENT)
+  source             String        @default("direct") // direct, airbnb, agoda, booking.com
+  loyalty_pts_used   Int           @default(0)
+  loyalty_pts_earned Int           @default(0)
+  special_requests   String?       @db.Text
+  created_at         DateTime      @default(now())
+
+  // Guest Checkout (Nullable)
+  guest_name       String?
+  guest_email      String?
+  guest_phone      String?
+  guest_token      String?       @unique
+  token_expires_at DateTime?
+
+  // Relations
+  room                 Room                 @relation(fields: [room_id], references: [id], onDelete: Restrict)
+  user                 User?                @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  payments             Payment[]
+  refunds              Refund[]
+  reviews              Review[]
+  promotions           BookingPromotion[]
+  loyalty_transactions LoyaltyTransaction[]
+
+  @@map("BOOKING")
+}
+
+model Payment {
+  id              String        @id @default(uuid()) @db.Uuid
+  booking_id      String        @db.Uuid
+  amount          Decimal       @db.Decimal(12, 2)
+  method          PaymentMethod
+  type            PaymentType   @default(FULL)
+  status          PaymentStatus @default(PENDING)
+  transaction_ref String        @unique
+  gateway_response String?      @db.Text
+  paid_at         DateTime?
+
+  // Relations
+  booking Booking  @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  refunds Refund[]
+
+  @@map("PAYMENT")
+}
+
+model Refund {
+  id           String       @id @default(uuid()) @db.Uuid
+  payment_id   String       @db.Uuid
+  booking_id   String       @db.Uuid
+  amount       Decimal      @db.Decimal(12, 2)
+  reason       String
+  status       RefundStatus @default(PENDING)
+  requested_at DateTime     @default(now())
+  processed_at DateTime?
+
+  // Relations
+  payment Payment @relation(fields: [payment_id], references: [id], onDelete: Cascade)
+  booking Booking @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+
+  @@map("REFUND")
+}
+
+model Review {
+  id                 String   @id @default(uuid()) @db.Uuid
+  booking_id         String   @db.Uuid
+  user_id            String   @db.Uuid
+  rating_overall     Int
+  rating_cleanliness Int
+  rating_service     Int
+  rating_location    Int
+  comment            String?  @db.Text
+  staff_reply        String?  @db.Text
+  is_visible         Boolean  @default(true)
+  created_at         DateTime @default(now())
+
+  // Relations
+  booking Booking @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("REVIEW")
+}
+
+// ==========================================
+// MODELS: ĐỒNG BỘ OTA & PHÂN TÍCH (OTA & ANALYTICS)
+// ==========================================
+
+model OtaChannel {
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String   // e.g. "Airbnb", "Agoda", "Booking.com"
+  api_endpoint String?
+  api_key_hash String?
+  is_active    Boolean  @default(true)
+
+  // Relations
+  room_mappings OtaRoomMapping[]
+
+  @@map("OTA_CHANNEL")
+}
+
+model OtaRoomMapping {
+  id              String  @id @default(uuid()) @db.Uuid
+  room_type_id    String  @db.Uuid
+  ota_channel_id  String  @db.Uuid
+  external_room_id String
+  price_markup_pct Decimal @default(0.00) @db.Decimal(5, 2) // e.g. 5.00 for 5% markup
+  sync_enabled    Boolean @default(true)
+
+  // Relations
+  room_type   RoomType     @relation(fields: [room_type_id], references: [id], onDelete: Cascade)
+  ota_channel OtaChannel   @relation(fields: [ota_channel_id], references: [id], onDelete: Cascade)
+  sync_logs   OtaSyncLog[]
+
+  @@map("OTA_ROOM_MAPPING")
+}
+
+model OtaSyncLog {
+  id                  String        @id @default(uuid()) @db.Uuid
+  ota_room_mapping_id String        @db.Uuid
+  action              String        // e.g. "sync_availability", "import_booking"
+  status              OtaSyncStatus
+  payload             String?       @db.Text
+  response            String?       @db.Text
+  synced_at           DateTime      @default(now())
+
+  // Relations
+  ota_room_mapping OtaRoomMapping @relation(fields: [ota_room_mapping_id], references: [id], onDelete: Cascade)
+
+  @@map("OTA_SYNC_LOG")
+}
+
+model ReportSnapshot {
+  id                 String   @id @default(uuid()) @db.Uuid
+  branch_id          String   @db.Uuid
+  period             String   // e.g. "2026-05", "2026-W20"
+  total_revenue      Decimal  @db.Decimal(14, 2)
+  total_bookings     Int
+  total_guests       Int
+  avg_occupancy_rate Decimal  @db.Decimal(5, 2) // e.g. 85.50 for 85.5%
+  avg_rating         Decimal  @db.Decimal(3, 2) // e.g. 4.85
+  generated_at       DateTime @default(now())
+
+  // Relations
+  branch Branch @relation(fields: [branch_id], references: [id], onDelete: Cascade)
+
+  @@map("REPORT_SNAPSHOT")
+}
