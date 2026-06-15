@@ -60,6 +60,18 @@ export async function createRoomTypeAction(formData: FormData) {
       });
     }
 
+    // Link additional room images
+    const roomImages = formData.getAll('room_images') as string[];
+    if (roomImages.length > 0) {
+      await prisma.roomImage.createMany({
+        data: roomImages.map((imageUrl, idx) => ({
+          room_type_id: roomType.id,
+          image_url: imageUrl,
+          sort_order: idx,
+        })),
+      });
+    }
+
     revalidatePath('/admin/rooms');
     return { success: true, roomType };
   } catch (error: any) {
@@ -112,6 +124,21 @@ export async function updateRoomTypeAction(id: string, formData: FormData) {
         data: checkedAmenityIds.map((amenityId) => ({
           room_type_id: id,
           amenity_id: amenityId,
+        })),
+      });
+    }
+
+    // Sync room images: delete old ones first, then insert new ones
+    const roomImages = formData.getAll('room_images') as string[];
+    await prisma.roomImage.deleteMany({
+      where: { room_type_id: id },
+    });
+    if (roomImages.length > 0) {
+      await prisma.roomImage.createMany({
+        data: roomImages.map((imageUrl, idx) => ({
+          room_type_id: id,
+          image_url: imageUrl,
+          sort_order: idx,
         })),
       });
     }

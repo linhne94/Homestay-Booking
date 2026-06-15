@@ -131,3 +131,34 @@ export async function toggleBranchStatusAction(id: string, isActive: boolean) {
     return { success: false, error: error.message || 'Có lỗi xảy ra khi thay đổi trạng thái chi nhánh.' };
   }
 }
+
+export async function switchBranchAction(branchId: string) {
+  try {
+    const staff = await getSessionStaff();
+    if (!staff) {
+      return { success: false, error: 'Chưa đăng nhập.' };
+    }
+    if (staff.staff_profile.role !== 'ADMIN') {
+      return { success: false, error: 'Bạn không có quyền thực hiện hành động này. Chỉ có Admin mới được phép đổi chi nhánh.' };
+    }
+
+    // Kiểm tra xem chi nhánh có tồn tại không
+    const branch = await prisma.branch.findUnique({
+      where: { id: branchId }
+    });
+    if (!branch) {
+      return { success: false, error: 'Chi nhánh không tồn tại.' };
+    }
+
+    await prisma.staff.update({
+      where: { id: staff.staff_profile.id },
+      data: { branch_id: branchId }
+    });
+
+    revalidatePath('/admin');
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Có lỗi xảy ra khi thay đổi chi nhánh.' };
+  }
+}
+

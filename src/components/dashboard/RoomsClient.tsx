@@ -12,6 +12,8 @@ import {
   updateRoomAction,
   deleteRoomAction
 } from '@/app/actions/room';
+import ImageUploadZone, { UploadedImage } from '@/components/admin/ImageUploadZone';
+import { uploadImagesToSupabase } from '@/lib/supabase/upload';
 
 interface Room {
   id: string;
@@ -40,6 +42,11 @@ interface RoomTypeData {
       icon: string;
       category: string;
     };
+  }[];
+  room_images?: {
+    id: string;
+    image_url: string;
+    sort_order: number;
   }[];
 }
 
@@ -80,6 +87,7 @@ export default function RoomsClient({
   const [rtDepositRate, setRtDepositRate] = useState('0.5');
   const [rtDescription, setRtDescription] = useState('');
   const [rtThumbnailUrl, setRtThumbnailUrl] = useState('');
+  const [rtUploadedImages, setRtUploadedImages] = useState<UploadedImage[]>([]);
   const [rtIsActive, setRtIsActive] = useState(true);
   const [rtSelectedAmenities, setRtSelectedAmenities] = useState<string[]>([]);
 
@@ -103,6 +111,7 @@ export default function RoomsClient({
     setRtDepositRate('0.5');
     setRtDescription('');
     setRtThumbnailUrl('');
+    setRtUploadedImages([]);
     setRtIsActive(true);
     setRtSelectedAmenities([]);
     setError('');
@@ -117,6 +126,21 @@ export default function RoomsClient({
     setRtDepositRate(String(rt.deposit_rate));
     setRtDescription(rt.description);
     setRtThumbnailUrl(rt.thumbnail_url);
+
+    // Map initial images from thumbnail_url and room_images
+    const initialImages: UploadedImage[] = [];
+    if (rt.thumbnail_url) {
+      initialImages.push({ url: rt.thumbnail_url });
+    }
+    if (rt.room_images) {
+      rt.room_images.forEach(img => {
+        if (img.image_url !== rt.thumbnail_url) {
+          initialImages.push({ id: img.id, url: img.image_url });
+        }
+      });
+    }
+    setRtUploadedImages(initialImages);
+
     setRtIsActive(rt.is_active);
     setRtSelectedAmenities(rt.amenities.map(a => a.amenity.id));
     setError('');
@@ -127,51 +151,97 @@ export default function RoomsClient({
     e.preventDefault();
     setError('');
 
-    const formData = new FormData();
-    formData.append('branch_id', branchId);
-    formData.append('name', rtName);
-    formData.append('max_guests', rtMaxGuests);
-    formData.append('base_price', rtBasePrice);
-    formData.append('deposit_rate', rtDepositRate);
-    formData.append('description', rtDescription);
-    formData.append('thumbnail_url', rtThumbnailUrl);
-    formData.append('is_active', String(rtIsActive));
-    
-    rtSelectedAmenities.forEach(id => {
-      formData.append('amenities', id);
-    });
+    if (rtUploadedImages.length === 0) {
+      setError('Vui lòng tải lên ít nhất một ảnh phòng.');
+      return;
+    }
 
     startTransition(async () => {
-      let res;
-      if (editingRt) {
-        res = await updateRoomTypeAction(editingRt.id, formData);
-      } else {
-        res = await createRoomTypeAction(formData);
-      }
+      try {
+        const localFiles = rtUploadedImages
+          .filter(img => img.file !== undefined)
+          .map(img => img.file as File);
 
-      if (res.success && res.roomType) {
-        // Construct standard roomType state object
-        const mappedAmenities = rtSelectedAmenities.map(id => {
-          const found = allAmenities.find(a => a.id === id);
-          return {
-            amenity: found || { id, name: '', icon: '', category: '' }
-          };
+        let finalThumbnailUrl = rtThumbnailUrl;
+        let finalImageUrls: string[] = [];
+
+        if (localFiles.length > 0) {
+          const uploadedUrls = await uploadImagesToSupabase(localFiles);
+          
+          let uploadIndex = 0;
+          const mappedImages = rtUploadedImages.map(img => {
+            if (img.file) {
+              return { url: uploadedUrls[uploadIndex++] };
+            }
+            return img;
+          });
+
+          finalThumbnailUrl = mappedImages[0].url;
+          finalImageUrls = mappedImages.map(img => img.url);
+        } else {
+          finalThumbnailUrl = rtUploadedImages[0].url;
+          finalImageUrls = rtUploadedImages.map(img => img.url);
+        }
+
+        const formData = new FormData();
+        formData.append('branch_id', branchId);
+        formData.append('name', rtName);
+        formData.append('max_guests', rtMaxGuests);
+        formData.append('base_price', rtBasePrice);
+        formData.append('deposit_rate', rtDepositRate);
+        formData.append('description', rtDescription);
+        formData.append('thumbnail_url', finalThumbnailUrl);
+        formData.append('is_active', String(rtIsActive));
+        
+        rtSelectedAmenities.forEach(id => {
+          formData.append('amenities', id);
         });
 
-        const newRt: RoomTypeData = {
-          ...res.roomType,
-          rooms: editingRt?.rooms || [],
-          amenities: mappedAmenities as any
-        };
+        // Chỉ lưu các ảnh phụ (từ phần tử thứ 2 trở đi) vào room_images
+        const additionalImages = finalImageUrls.slice(1);
+        additionalImages.forEach(url => {
+          formData.append('room_images', url);
+        });
 
+        let res;
         if (editingRt) {
-          setRoomTypes(prev => prev.map(rt => rt.id === editingRt.id ? newRt : rt));
+          res = await updateRoomTypeAction(editingRt.id, formData);
         } else {
-          setRoomTypes(prev => [...prev, newRt]);
+          res = await createRoomTypeAction(formData);
         }
-        setIsRtModalOpen(false);
-      } else {
-        setError(res.error || 'Có lỗi xảy ra.');
+
+        if (res.success && res.roomType) {
+          const mappedAmenities = rtSelectedAmenities.map(id => {
+            const found = allAmenities.find(a => a.id === id);
+            return {
+              amenity: found || { id, name: '', icon: '', category: '' }
+            };
+          });
+
+          const updatedImages = additionalImages.map((url, idx) => ({
+            id: `temp-${idx}`,
+            image_url: url,
+            sort_order: idx
+          }));
+
+          const newRt: RoomTypeData = {
+            ...res.roomType,
+            rooms: editingRt?.rooms || [],
+            amenities: mappedAmenities as any,
+            room_images: updatedImages
+          };
+
+          if (editingRt) {
+            setRoomTypes(prev => prev.map(rt => rt.id === editingRt.id ? newRt : rt));
+          } else {
+            setRoomTypes(prev => [...prev, newRt]);
+          }
+          setIsRtModalOpen(false);
+        } else {
+          setError(res.error || 'Có lỗi xảy ra.');
+        }
+      } catch (uploadErr: any) {
+        setError(uploadErr.message || 'Có lỗi xảy ra khi tải ảnh lên.');
       }
     });
   };
@@ -564,18 +634,13 @@ export default function RoomsClient({
                 </div>
               </div>
 
-              {/* Row 3: Thumbnail URL */}
+              {/* Row 3: Local Multi-Image Upload Zone */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-[9px] font-bold uppercase tracking-wider text-[#FAF9F6]/75">
-                  Ảnh Đại Diện (URL) <span className="text-[#C5A880]">*</span>
-                </label>
-                <input
-                  type="url"
-                  required
-                  value={rtThumbnailUrl}
-                  onChange={(e) => setRtThumbnailUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full bg-[#0B0C10] border border-[#232731] rounded-xl px-4 py-2.5 text-xs focus:ring-1 focus:ring-[#C5A880] focus:border-[#C5A880] outline-none font-medium text-[#FAF9F6]"
+                <ImageUploadZone
+                  images={rtUploadedImages}
+                  onChange={setRtUploadedImages}
+                  maxImages={8}
+                  label="Hình ảnh phòng (Ảnh đầu tiên sẽ làm ảnh đại diện)"
                 />
               </div>
 

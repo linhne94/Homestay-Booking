@@ -10,6 +10,8 @@ import {
   deleteBranchAction, 
   toggleBranchStatusAction 
 } from '@/app/actions/branch';
+import ImageUploadZone, { UploadedImage } from '@/components/admin/ImageUploadZone';
+import { uploadImagesToSupabase } from '@/lib/supabase/upload';
 
 interface BranchData {
   id: string;
@@ -49,6 +51,7 @@ export default function BranchesClient({ initialBranches, currentStaffBranchId }
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [thumbnailUrl, setThumbnailUrl] = useState('');
+  const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [isActive, setIsActive] = useState(true);
 
   const openAddModal = () => {
@@ -61,6 +64,7 @@ export default function BranchesClient({ initialBranches, currentStaffBranchId }
     setPhone('');
     setEmail('');
     setThumbnailUrl('');
+    setUploadedImages([]);
     setIsActive(true);
     setError('');
     setIsModalOpen(true);
@@ -76,6 +80,7 @@ export default function BranchesClient({ initialBranches, currentStaffBranchId }
     setPhone(branch.phone);
     setEmail(branch.email);
     setThumbnailUrl(branch.thumbnail_url);
+    setUploadedImages(branch.thumbnail_url ? [{ url: branch.thumbnail_url }] : []);
     setIsActive(branch.is_active);
     setError('');
     setIsModalOpen(true);
@@ -85,41 +90,72 @@ export default function BranchesClient({ initialBranches, currentStaffBranchId }
     e.preventDefault();
     setError('');
 
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('address', address);
-    formData.append('city', city);
-    formData.append('latitude', latitude);
-    formData.append('longitude', longitude);
-    formData.append('phone', phone);
-    formData.append('email', email);
-    formData.append('thumbnail_url', thumbnailUrl);
-    formData.append('is_active', String(isActive));
+    if (uploadedImages.length === 0) {
+      setError('Vui lòng tải lên ít nhất một ảnh chi nhánh.');
+      return;
+    }
 
     startTransition(async () => {
-      let res;
-      if (editingBranch) {
-        res = await updateBranchAction(editingBranch.id, formData);
-      } else {
-        res = await createBranchAction(formData);
-      }
+      try {
+        const localFiles = uploadedImages
+          .filter(img => img.file !== undefined)
+          .map(img => img.file as File);
 
-      if (res.success && res.branch) {
-        const updatedBranch: BranchData = {
-          ...res.branch,
-          latitude: Number(res.branch.latitude),
-          longitude: Number(res.branch.longitude),
-          _count: editingBranch?._count || { room_types: 0, staffs: 0 }
-        };
+        let finalThumbnailUrl = thumbnailUrl;
 
-        if (editingBranch) {
-          setBranches(prev => prev.map(b => b.id === editingBranch.id ? updatedBranch : b));
-        } else {
-          setBranches(prev => [...prev, updatedBranch]);
+        if (localFiles.length > 0) {
+          const uploadedUrls = await uploadImagesToSupabase(localFiles);
+          
+          let uploadIndex = 0;
+          const mappedImages = uploadedImages.map(img => {
+            if (img.file) {
+              return { url: uploadedUrls[uploadIndex++] };
+            }
+            return img;
+          });
+
+          finalThumbnailUrl = mappedImages[0].url;
+        } else if (uploadedImages.length > 0) {
+          finalThumbnailUrl = uploadedImages[0].url;
         }
-        setIsModalOpen(false);
-      } else {
-        setError(res.error || 'Có lỗi xảy ra.');
+
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('address', address);
+        formData.append('city', city);
+        formData.append('latitude', latitude);
+        formData.append('longitude', longitude);
+        formData.append('phone', phone);
+        formData.append('email', email);
+        formData.append('thumbnail_url', finalThumbnailUrl);
+        formData.append('is_active', String(isActive));
+
+        let res;
+        if (editingBranch) {
+          res = await updateBranchAction(editingBranch.id, formData);
+        } else {
+          res = await createBranchAction(formData);
+        }
+
+        if (res.success && res.branch) {
+          const updatedBranch: BranchData = {
+            ...res.branch,
+            latitude: Number(res.branch.latitude),
+            longitude: Number(res.branch.longitude),
+            _count: editingBranch?._count || { room_types: 0, staffs: 0 }
+          };
+
+          if (editingBranch) {
+            setBranches(prev => prev.map(b => b.id === editingBranch.id ? updatedBranch : b));
+          } else {
+            setBranches(prev => [...prev, updatedBranch]);
+          }
+          setIsModalOpen(false);
+        } else {
+          setError(res.error || 'Có lỗi xảy ra.');
+        }
+      } catch (uploadErr: any) {
+        setError(uploadErr.message || 'Có lỗi xảy ra khi tải ảnh lên.');
       }
     });
   };
@@ -388,18 +424,13 @@ export default function BranchesClient({ initialBranches, currentStaffBranchId }
                 </div>
               </div>
 
-              {/* Row 5: Thumbnail URL */}
+              {/* Row 5: Local Image Upload Zone */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-[9px] font-bold uppercase tracking-wider text-[#FAF9F6]/75">
-                  Ảnh Đại Diện (URL) <span className="text-[#C5A880]">*</span>
-                </label>
-                <input
-                  type="url"
-                  required
-                  value={thumbnailUrl}
-                  onChange={(e) => setThumbnailUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full bg-[#0B0C10] border border-[#232731] rounded-xl px-4 py-2.5 text-xs focus:ring-1 focus:ring-[#C5A880] focus:border-[#C5A880] outline-none font-medium text-[#FAF9F6]"
+                <ImageUploadZone
+                  images={uploadedImages}
+                  onChange={setUploadedImages}
+                  maxImages={5}
+                  label="Ảnh chi nhánh"
                 />
               </div>
 
