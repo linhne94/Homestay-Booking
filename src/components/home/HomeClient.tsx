@@ -41,6 +41,8 @@ export default function HomeClient({
   const [roomTypes, setRoomTypes] = useState(initialRoomTypes);
   const [isLoading, setIsLoading] = useState(false);
   const [searchError, setSearchError] = useState('');
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [shouldRenderLoader, setShouldRenderLoader] = useState(true);
 
   // Lấy ngày hiện tại và ngày mai làm mặc định cho ô input date
   useEffect(() => {
@@ -53,6 +55,22 @@ export default function HomeClient({
 
     setCheckIn(todayStr);
     setCheckOut(tomorrowStr);
+  }, []);
+
+  // Tự động tắt loading sau 1.5 giây để tạo hiệu ứng ấn tượng
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsInitialLoading(false);
+    }, 1500);
+
+    const removeTimer = setTimeout(() => {
+      setShouldRenderLoader(false);
+    }, 2000);
+
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(removeTimer);
+    };
   }, []);
 
   // Tự động fetch lại phòng trống khi đổi chi nhánh
