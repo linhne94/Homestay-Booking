@@ -41,6 +41,8 @@ export default function HomeClient({
   const [roomTypes, setRoomTypes] = useState(initialRoomTypes);
   const [isLoading, setIsLoading] = useState(false);
   const [searchError, setSearchError] = useState('');
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [shouldRenderLoader, setShouldRenderLoader] = useState(true);
 
   // Lấy ngày hiện tại và ngày mai làm mặc định cho ô input date
   useEffect(() => {
@@ -53,6 +55,22 @@ export default function HomeClient({
 
     setCheckIn(todayStr);
     setCheckOut(tomorrowStr);
+  }, []);
+
+  // Tự động tắt loading sau 1.5 giây để tạo hiệu ứng ấn tượng
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsInitialLoading(false);
+    }, 1500);
+
+    const removeTimer = setTimeout(() => {
+      setShouldRenderLoader(false);
+    }, 2000);
+
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(removeTimer);
+    };
   }, []);
 
   // Tự động fetch lại phòng trống khi đổi chi nhánh
@@ -97,6 +115,30 @@ export default function HomeClient({
 
   return (
     <div className="w-full">
+      {shouldRenderLoader && (
+        <div 
+          className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#5C3D2E] transition-opacity duration-500 ease-in-out ${
+            isInitialLoading ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
+        >
+          <div className="flex flex-col items-center gap-5 text-center px-4">
+            {/* Pulsing Logo */}
+            <div className="w-64 h-64 sm:w-80 sm:h-80 rounded-3xl overflow-hidden shadow-2xl animate-pulse duration-[2s] border border-[#FAF9F6]/5">
+              <img 
+                src="/lomo-logo.png" 
+                alt="Lơ Mơ Homestay Đà Lạt" 
+                className="w-full h-full object-cover"
+              />
+            </div>
+            {/* Cozy Loading indicators */}
+            <div className="flex items-center gap-1.5 mt-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#FAF9F6]/85 animate-bounce duration-[1s]" style={{ animationDelay: '0ms' }}></span>
+              <span className="w-2.5 h-2.5 rounded-full bg-[#FAF9F6]/85 animate-bounce duration-[1s]" style={{ animationDelay: '150ms' }}></span>
+              <span className="w-2.5 h-2.5 rounded-full bg-[#FAF9F6]/85 animate-bounce duration-[1s]" style={{ animationDelay: '300ms' }}></span>
+            </div>
+          </div>
+        </div>
+      )}
       {/* 1. Hero Section Lơ Mơ */}
       <section className="relative h-[90vh] min-h-[600px] flex items-center justify-center overflow-hidden">
         {/* Hình nền mờ dần */}
