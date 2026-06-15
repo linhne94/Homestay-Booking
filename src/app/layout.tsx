@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display, DM_Sans } from "next/font/google";
+import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -8,15 +8,15 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Galophy Retreats | Eco-Luxury Homestay Booking",
-  description: "Trải nghiệm kỳ nghỉ sinh thái sang trọng tại các boutique homestay độc bản ở Đà Lạt và Nha Trang. Đặt phòng trực tiếp, bảo đảm giá tốt nhất.",
+  title: "Lơ Mơ Homestay | Một chốn lơ mơ giữa lòng Đà Lạt",
+  description: "Trải nghiệm kỳ nghỉ homestay ấm cúng, riêng tư và tự nhiên tại Lơ Mơ Homestay Đà Lạt. Đặt phòng trực tiếp, bảo đảm giá tốt nhất.",
   icons: {
     icon: "/favicon.ico",
   },
@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <html
       lang="vi"
-      className={`${playfair.variable} ${dmSans.variable} h-full antialiased`}
+      className={`${playfair.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans bg-background text-foreground">
         {children}

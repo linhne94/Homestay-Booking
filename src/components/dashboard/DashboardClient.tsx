@@ -137,23 +137,23 @@ export default function DashboardClient({
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12 text-[#1E463C]">
+    <div className="max-w-7xl mx-auto px-6 py-12 text-wood-dark">
       {/* 1. Header Profile & Loyalty Points Overview */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center bg-white p-8 rounded-3xl border border-[#1E463C]/10 shadow-lg mb-12">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center bg-white p-8 rounded-3xl border border-wood-light/35 shadow-[0_8px_30px_rgb(107,76,42,0.05)] mb-12">
         <div className="lg:col-span-2 flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
           {user.avatar_url ? (
-            <img src={user.avatar_url} alt="avatar" className="w-20 h-20 rounded-full object-cover border-2 border-[#C5A880]" />
+            <img src={user.avatar_url} alt="avatar" className="w-20 h-20 rounded-full object-cover border-2 border-wood-light" />
           ) : (
-            <div className="w-20 h-20 rounded-full bg-[#1E463C]/5 border border-[#1E463C]/10 flex items-center justify-center font-serif text-3xl font-bold">
+            <div className="w-20 h-20 rounded-full bg-primary/5 border border-wood-light/35 flex items-center justify-center font-serif text-3xl font-semibold text-wood-dark">
               {user.full_name[0]}
             </div>
           )}
           <div className="flex flex-col gap-1.5">
-            <h2 className="font-serif text-2xl font-bold">{user.full_name}</h2>
-            <p className="text-xs text-[#1E463C]/70 font-light">{user.email}</p>
+            <h2 className="font-serif text-2xl font-semibold text-wood-dark">{user.full_name}</h2>
+            <p className="text-xs text-wood-dark/70 font-light">{user.email}</p>
             <button 
               onClick={handleLogout}
-              className="text-[10px] uppercase font-bold tracking-widest text-red-600 hover:text-red-700 mt-2 flex items-center gap-1 hover:underline justify-center sm:justify-start"
+              className="text-xs font-semibold text-red-600 hover:text-red-700 mt-2 flex items-center gap-1 hover:underline justify-center sm:justify-start transition-colors duration-200"
             >
               <LogOut className="w-3.5 h-3.5" /> Đăng xuất tài khoản
             </button>
@@ -161,36 +161,36 @@ export default function DashboardClient({
         </div>
 
         {/* Loyalty Points Card */}
-        <div className="bg-[#1E463C] text-[#FAF9F6] p-6 rounded-2xl border border-[#FAF9F6]/10 flex items-center gap-6 relative overflow-hidden shadow-inner">
-          <div className="absolute top-[-10px] right-[-10px] w-20 h-20 bg-[#C5A880]/15 rounded-full blur-xl" />
-          <div className="p-3 bg-[#C5A880]/20 rounded-xl text-[#C5A880] border border-[#C5A880]/20 shrink-0">
+        <div className="bg-primary text-bg-main p-6 rounded-2xl border border-white/10 flex items-center gap-6 relative overflow-hidden shadow-inner">
+          <div className="absolute top-[-10px] right-[-10px] w-20 h-20 bg-wood-light/15 rounded-full blur-xl" />
+          <div className="p-3 bg-wood-light/20 rounded-xl text-wood-light border border-wood-light/20 shrink-0">
             <Award className="w-8 h-8" />
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-[10px] uppercase tracking-wider text-[#FAF9F6]/60 font-semibold">Thành viên Galophy Elite</span>
-            <span className="text-3xl font-serif font-black text-[#C5A880]">{user.loyalty_points} <span className="text-xs font-sans font-light text-[#FAF9F6]/85">điểm</span></span>
-            <span className="text-[9px] text-[#FAF9F6]/75 font-light">Viết đánh giá để nhận 100 điểm thưởng/lần.</span>
+            <span className="text-[10px] text-white/70 font-medium">Thành viên Lơ Mơ Elite</span>
+            <span className="text-3xl font-serif font-black text-wood-light">{user.loyalty_points} <span className="text-xs font-sans font-light text-white/85">điểm</span></span>
+            <span className="text-[9px] text-white/75 font-light leading-normal">Viết đánh giá để nhận 100 điểm thưởng/lần.</span>
           </div>
         </div>
       </div>
 
       {/* 2. Tabs Switcher */}
-      <div className="flex border-b border-[#1E463C]/10 mb-8 gap-6 text-sm font-semibold tracking-wide">
+      <div className="flex border-b border-wood-light/35 mb-8 gap-6 text-sm font-semibold tracking-wide text-wood-dark">
         <button
           onClick={() => setActiveTab('bookings')}
-          className={`pb-3 border-b-2 transition-all ${
-            activeTab === 'bookings' ? 'border-[#1E463C] text-[#1E463C]' : 'border-transparent text-[#1E463C]/60 hover:text-[#1E463C]'
+          className={`pb-3 border-b-2 transition-all duration-300 cursor-pointer ${
+            activeTab === 'bookings' ? 'border-primary text-primary' : 'border-transparent text-wood-dark/60 hover:text-wood-dark'
           }`}
         >
-          Đơn Đặt Phòng Của Tôi ({bookings.length})
+          Đơn đặt phòng của tôi ({bookings.length})
         </button>
         <button
           onClick={() => setActiveTab('loyalty')}
-          className={`pb-3 border-b-2 transition-all ${
-            activeTab === 'loyalty' ? 'border-[#1E463C] text-[#1E463C]' : 'border-transparent text-[#1E463C]/60 hover:text-[#1E463C]'
+          className={`pb-3 border-b-2 transition-all duration-300 cursor-pointer ${
+            activeTab === 'loyalty' ? 'border-primary text-primary' : 'border-transparent text-wood-dark/60 hover:text-wood-dark'
           }`}
         >
-          Lịch Sử Tích Điểm ({loyaltyTransactions.length})
+          Lịch sử tích điểm ({loyaltyTransactions.length})
         </button>
       </div>
 
@@ -208,42 +208,42 @@ export default function DashboardClient({
               return (
                 <div 
                   key={b.id}
-                  className="bg-white rounded-3xl border border-[#1E463C]/10 shadow-md p-6 flex flex-col md:flex-row gap-6 hover:shadow-xl transition-all duration-300 items-center justify-between"
+                  className="bg-white rounded-3xl border border-wood-light/35 shadow-[0_4px_20_rgb(107,76,42,0.04)] p-6 flex flex-col md:flex-row gap-6 hover:shadow-lg transition-all duration-300 items-center justify-between"
                 >
                   <div className="flex flex-col sm:flex-row gap-6 w-full md:w-auto items-center">
                     <img 
                       src={b.room.room_type.thumbnail_url} 
                       alt={b.room.room_type.name} 
-                      className="w-24 h-24 object-cover rounded-2xl border border-[#1E463C]/10 shrink-0"
+                      className="w-24 h-24 object-cover rounded-2xl border border-wood-light/35 shrink-0"
                     />
                     <div className="flex flex-col text-center sm:text-left gap-1">
-                      <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold tracking-wider uppercase w-fit mx-auto sm:mx-0 border ${getStatusBadge(b.status)}`}>
+                      <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold tracking-wider w-fit mx-auto sm:mx-0 border ${getStatusBadge(b.status)}`}>
                         {getStatusText(b.status)}
                       </span>
-                      <h3 className="font-serif font-bold text-lg text-[#1E463C] mt-1.5">{b.room.room_type.name}</h3>
-                      <p className="text-[10px] text-[#1E463C]/70 font-light flex items-center justify-center sm:justify-start gap-1">
-                        <MapPin className="w-3.5 h-3.5 text-[#C5A880]" /> Số phòng: <strong className="font-semibold text-[#1E463C]">{b.room.room_number}</strong>
+                      <h3 className="font-serif font-bold text-lg text-wood-dark mt-1.5">{b.room.room_type.name}</h3>
+                      <p className="text-[10px] text-wood-dark/70 font-light flex items-center justify-center sm:justify-start gap-1">
+                        <MapPin className="w-3.5 h-3.5 text-primary" /> Số phòng: <strong className="font-semibold text-wood-dark">{b.room.room_number}</strong>
                       </p>
-                      <p className="text-xs text-[#1E463C]/80 mt-1 font-light flex items-center justify-center sm:justify-start gap-3">
+                      <p className="text-xs text-wood-dark/80 mt-1 font-light flex items-center justify-center sm:justify-start gap-3">
                         <span>📅 {checkIn.toLocaleDateString('vi-VN')} - {checkOut.toLocaleDateString('vi-VN')}</span>
-                        <span className="text-[#C5A880] font-semibold">({nights} đêm)</span>
+                        <span className="text-primary font-semibold">({nights} đêm)</span>
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-center sm:items-end gap-3 w-full md:w-auto border-t md:border-t-0 md:border-l border-[#1E463C]/10 pt-4 md:pt-0 md:pl-8 text-center sm:text-right shrink-0">
+                  <div className="flex flex-col items-center sm:items-end gap-3 w-full md:w-auto border-t md:border-t-0 md:border-l border-wood-light/25 pt-4 md:pt-0 md:pl-8 text-center sm:text-right shrink-0">
                     <div>
-                      <span className="text-[9px] uppercase font-bold text-[#1E463C]/60 tracking-wider">Tổng giá trị</span>
-                      <p className="text-xl font-bold text-[#1E463C]">{Number(b.total_price).toLocaleString()} VND</p>
+                      <span className="text-[10px] font-semibold text-wood-dark/60">Tổng giá trị</span>
+                      <p className="text-xl font-bold text-wood-dark">{Number(b.total_price).toLocaleString()} VND</p>
                     </div>
 
                     {/* Điều kiện viết đánh giá */}
                     {isCheckedOut && !hasReview && (
                       <button
                         onClick={() => handleOpenReview(b)}
-                        className="px-5 py-2 rounded-xl bg-[#C5A880] hover:bg-[#1E463C] text-[#FAF9F6] font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-sm"
+                        className="px-5 py-2 rounded-xl bg-primary hover:bg-primary-light text-white font-semibold text-xs tracking-wide transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1.5 shadow-sm cursor-pointer"
                       >
-                        <MessageSquare className="w-3.5 h-3.5" /> Viết Đánh Giá
+                        <MessageSquare className="w-3.5 h-3.5" /> Viết đánh giá
                       </button>
                     )}
 
@@ -255,8 +255,8 @@ export default function DashboardClient({
 
                     {/* QR Code view */}
                     {b.status !== 'CANCELLED' && b.status !== 'CHECKED_OUT' && (
-                      <div className="flex items-center gap-1.5 text-[9px] uppercase font-bold text-[#C5A880] tracking-widest bg-[#FAF9F6] border border-[#1E463C]/10 px-3 py-1.5 rounded-lg select-none">
-                        <ShieldCheck className="w-3.5 h-3.5" /> QR Code check-in sẵn sàng
+                      <div className="flex items-center gap-1.5 text-[9px] font-bold text-primary bg-bg-main border border-wood-light/35 px-3 py-1.5 rounded-lg select-none">
+                        <ShieldCheck className="w-3.5 h-3.5 text-primary" /> QR Code check-in sẵn sàng
                       </div>
                     )}
                   </div>
@@ -264,8 +264,8 @@ export default function DashboardClient({
               );
             })
           ) : (
-            <div className="bg-white p-12 rounded-3xl border border-[#1E463C]/10 shadow-sm text-center">
-              <p className="text-xs text-[#1E463C]/50 italic">Bạn chưa có đơn đặt phòng nào. Hãy khám phá ngay các phòng mơ ước!</p>
+            <div className="bg-white p-12 rounded-3xl border border-wood-light/35 shadow-sm text-center">
+              <p className="text-xs text-wood-dark/50 italic">Bạn chưa có đơn đặt phòng nào. Hãy khám phá ngay các phòng mơ ước!</p>
             </div>
           )}
         </div>
@@ -273,17 +273,17 @@ export default function DashboardClient({
 
       {/* 4. Tab Content 2: Loyalty History */}
       {activeTab === 'loyalty' && (
-        <div className="bg-white rounded-3xl border border-[#1E463C]/10 shadow-lg p-6 flex flex-col gap-4">
-          <h3 className="font-serif text-lg font-bold text-[#1E463C] border-b border-[#1E463C]/10 pb-3 mb-2 flex items-center gap-2">
-            <Award className="w-5 h-5 text-[#C5A880]" /> Nhật Ký Biến Động Điểm Thưởng
+        <div className="bg-white rounded-3xl border border-wood-light/35 shadow-lg p-6 flex flex-col gap-4">
+          <h3 className="font-serif text-lg font-bold text-wood-dark border-b border-wood-light/25 pb-3 mb-2 flex items-center gap-2">
+            <Award className="w-5 h-5 text-primary" /> Nhật ký biến động điểm thưởng
           </h3>
           {loyaltyTransactions.length > 0 ? (
             <div className="flex flex-col gap-4 text-xs font-light">
               {loyaltyTransactions.map((tx) => (
                 <div key={tx.id} className="flex items-center justify-between border-b border-zinc-50 pb-3">
                   <div className="flex flex-col gap-1 text-left">
-                    <p className="font-medium text-[#1E463C]">{tx.description}</p>
-                    <span className="text-[10px] text-[#1E463C]/55">{new Date(tx.created_at).toLocaleString('vi-VN')}</span>
+                    <p className="font-medium text-wood-dark">{tx.description}</p>
+                    <span className="text-[10px] text-wood-dark/60">{new Date(tx.created_at).toLocaleString('vi-VN')}</span>
                   </div>
                   <span className={`text-sm font-bold ${tx.type === 'EARNED' ? 'text-green-600' : 'text-red-500'}`}>
                     {tx.type === 'EARNED' ? `+${tx.points}` : `-${tx.points}`} điểm
@@ -292,25 +292,25 @@ export default function DashboardClient({
               ))}
             </div>
           ) : (
-            <p className="text-xs text-[#1E463C]/50 italic text-center py-6">Chưa có giao dịch tích điểm nào.</p>
+            <p className="text-xs text-wood-dark/50 italic text-center py-6">Chưa có giao dịch tích điểm nào.</p>
           )}
         </div>
       )}
 
       {/* 5. Star Review Modal (Dialog kính mờ) */}
       {showReviewModal && selectedBooking && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E463C]/40 backdrop-blur-md p-6 animate-fadeIn">
-          <div className="bg-white rounded-3xl border border-[#1E463C]/10 shadow-2xl p-8 max-w-lg w-full flex flex-col gap-6 relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-dark/40 backdrop-blur-md p-6 animate-fadeIn">
+          <div className="bg-white rounded-3xl border border-wood-light/35 shadow-2xl p-8 max-w-lg w-full flex flex-col gap-6 relative">
             <button
               onClick={() => setShowReviewModal(false)}
-              className="absolute top-6 right-6 text-zinc-400 hover:text-[#1E463C] text-sm font-bold"
+              className="absolute top-6 right-6 text-zinc-400 hover:text-primary text-sm font-bold"
             >
               ✕
             </button>
 
-            <div className="text-center flex flex-col gap-1 border-b border-[#1E463C]/10 pb-4">
-              <h3 className="font-serif text-xl font-bold">Đánh Giá Trải Nghiệm</h3>
-              <p className="text-xs text-[#1E463C]/70 font-light">Căn phòng: {selectedBooking.room.room_type.name}</p>
+            <div className="text-center flex flex-col gap-1 border-b border-wood-light/25 pb-4">
+              <h3 className="font-serif text-xl font-bold text-wood-dark">Đánh giá trải nghiệm</h3>
+              <p className="text-xs text-wood-dark/80 font-light">Căn phòng: {selectedBooking.room.room_type.name}</p>
             </div>
 
             {errorMsg && (
@@ -322,17 +322,17 @@ export default function DashboardClient({
             <form onSubmit={handleSubmitReview} className="flex flex-col gap-5 text-xs">
               {/* Star Rating chung */}
               <div className="flex flex-col gap-2 items-center text-center">
-                <span className="font-semibold text-[#1E463C]/80">Trải nghiệm chung của bạn *</span>
+                <span className="font-semibold text-wood-dark/80">Trải nghiệm chung của bạn *</span>
                 <div className="flex gap-1.5">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
                       key={star}
                       type="button"
                       onClick={() => setRatingOverall(star)}
-                      className="p-1 focus:outline-none"
+                      className="p-1 focus:outline-none cursor-pointer"
                     >
-                      <Star className={`w-7 h-7 transition-all ${
-                        star <= ratingOverall ? 'fill-[#C5A880] text-[#C5A880] scale-110' : 'text-zinc-200 hover:text-[#C5A880]'
+                      <Star className={`w-7 h-7 transition-all duration-200 ${
+                        star <= ratingOverall ? 'fill-primary text-primary scale-110' : 'text-zinc-200 hover:text-primary'
                       }`} />
                     </button>
                   ))}
@@ -340,36 +340,36 @@ export default function DashboardClient({
               </div>
 
               {/* Điểm thành phần */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-y border-[#1E463C]/5 py-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-y border-wood-light/20 py-4">
                 {/* Sạch sẽ */}
                 <div className="flex flex-col gap-1.5 items-center">
-                  <span className="font-medium text-[#1E463C]/75">Sạch sẽ</span>
+                  <span className="font-medium text-wood-dark/85">Sạch sẽ</span>
                   <select
                     value={ratingClean}
                     onChange={(e) => setRatingClean(Number(e.target.value))}
-                    className="bg-[#FAF9F6] border border-[#1E463C]/10 rounded-lg px-2.5 py-1 text-xs outline-none"
+                    className="bg-bg-main border border-wood-light/35 rounded-lg px-2.5 py-1 text-xs outline-none text-wood-dark cursor-pointer"
                   >
                     {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{n} sao</option>)}
                   </select>
                 </div>
                 {/* Phục vụ */}
-                <div className="flex flex-col gap-1.5 items-center sm:border-x sm:border-[#1E463C]/10">
-                  <span className="font-medium text-[#1E463C]/75">Dịch vụ</span>
+                <div className="flex flex-col gap-1.5 items-center sm:border-x sm:border-wood-light/25">
+                  <span className="font-medium text-wood-dark/85">Dịch vụ</span>
                   <select
                     value={ratingService}
                     onChange={(e) => setRatingService(Number(e.target.value))}
-                    className="bg-[#FAF9F6] border border-[#1E463C]/10 rounded-lg px-2.5 py-1 text-xs outline-none"
+                    className="bg-bg-main border border-wood-light/35 rounded-lg px-2.5 py-1 text-xs outline-none text-wood-dark cursor-pointer"
                   >
                     {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{n} sao</option>)}
                   </select>
                 </div>
                 {/* Vị trí */}
                 <div className="flex flex-col gap-1.5 items-center">
-                  <span className="font-medium text-[#1E463C]/75">Vị trí</span>
+                  <span className="font-medium text-wood-dark/85">Vị trí</span>
                   <select
                     value={ratingLocation}
                     onChange={(e) => setRatingLocation(Number(e.target.value))}
-                    className="bg-[#FAF9F6] border border-[#1E463C]/10 rounded-lg px-2.5 py-1 text-xs outline-none"
+                    className="bg-bg-main border border-wood-light/35 rounded-lg px-2.5 py-1 text-xs outline-none text-wood-dark cursor-pointer"
                   >
                     {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{n} sao</option>)}
                   </select>
@@ -378,23 +378,23 @@ export default function DashboardClient({
 
               {/* Bình luận */}
               <div className="flex flex-col gap-1.5 text-left">
-                <label className="font-bold uppercase tracking-wider text-[#1E463C]/70">Nhận xét chi tiết</label>
+                <label className="text-xs font-semibold text-wood-dark/80 mb-1">Nhận xét chi tiết</label>
                 <textarea
                   placeholder="Hãy chia sẻ trải nghiệm lưu trú của bạn tại bungalow..."
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   rows={4}
                   required
-                  className="w-full bg-[#FAF9F6] border border-[#1E463C]/10 rounded-xl px-4 py-3 text-xs focus:ring-1 focus:ring-[#C5A880] focus:border-[#C5A880] outline-none font-medium resize-none"
+                  className="w-full bg-bg-main border border-wood-light/35 rounded-xl px-4 py-3 text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none font-medium resize-none text-wood-dark placeholder-wood-light/70"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full h-12 bg-[#1E463C] hover:bg-[#C5A880] disabled:opacity-50 text-[#FAF9F6] font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center justify-center"
+                className="w-full h-12 bg-primary hover:bg-primary-light disabled:opacity-50 text-white font-semibold text-sm rounded-xl transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center cursor-pointer"
               >
-                {isSubmitting ? 'Đang gửi đánh giá...' : 'Gửi Đánh Giá & Nhận Điểm Thưởng'}
+                {isSubmitting ? 'Đang gửi đánh giá...' : 'Gửi đánh giá và nhận điểm thưởng'}
               </button>
             </form>
           </div>

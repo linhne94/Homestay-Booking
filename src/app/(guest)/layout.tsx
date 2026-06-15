@@ -11,33 +11,30 @@ export default async function GuestLayout({
   const user = await getSessionUser();
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#FAF9F6] text-[#1E463C] font-sans selection:bg-[#C5A880]/30">
-      {/* Navbar cao cấp Eco-Luxury */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-[#FAF9F6]/80 border-b border-[#1E463C]/10">
+    <div className="flex flex-col min-h-screen bg-bg-main text-wood-dark font-sans selection:bg-primary-light/30">
+      {/* Navbar Lơ Mơ Homestay */}
+      <header className="sticky top-0 z-50 backdrop-blur-md bg-bg-main/90 border-b border-wood-light">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           {/* Logo Brand */}
           <Link href="/" className="flex flex-col cursor-pointer">
-            <span className="font-serif text-2xl font-bold tracking-wide text-[#1E463C] hover:opacity-90 transition-opacity">
-              GALOPHY
-            </span>
-            <span className="text-[10px] tracking-[0.25em] text-[#C5A880] uppercase font-medium -mt-1">
-              RETREATS
+            <span className="font-serif text-xl font-semibold tracking-wide text-wood-dark hover:opacity-90 transition-opacity">
+              Lơ Mơ
             </span>
           </Link>
 
           {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium tracking-wide">
-            <Link href="/" className="hover:text-[#C5A880] transition-colors cursor-pointer">
-              Trang Chủ
+          <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
+            <Link href="/#rooms" className="text-primary hover:text-primary-light transition-colors cursor-pointer">
+              Phòng & Không gian
             </Link>
-            <Link href="/#rooms" className="hover:text-[#C5A880] transition-colors cursor-pointer">
-              Phòng & Biệt Thự
+            <Link href="/#about" className="text-primary hover:text-primary-light transition-colors cursor-pointer">
+              Vị trí
             </Link>
-            <Link href="/#about" className="hover:text-[#C5A880] transition-colors cursor-pointer">
-              Về Chúng Tôi
+            <Link href="/guest-portal" className="text-primary hover:text-primary-light transition-colors cursor-pointer">
+              Tra cứu đặt phòng
             </Link>
-            <Link href="/guest-portal" className="flex items-center gap-1.5 hover:text-[#C5A880] transition-colors cursor-pointer">
-              <Calendar className="w-4 h-4" /> Tra cứu đặt phòng
+            <Link href="#contact" className="text-primary hover:text-primary-light transition-colors cursor-pointer">
+              Liên hệ
             </Link>
           </nav>
 
@@ -48,24 +45,24 @@ export default async function GuestLayout({
                 {(user.role === 'ADMIN' || user.role === 'STAFF') && (
                   <Link 
                     href="/admin" 
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#1E463C] text-[#FAF9F6] hover:bg-[#1E463C]/90 transition-all border border-[#1E463C]/20 cursor-pointer"
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary text-white hover:bg-primary-light transition-all border border-wood-light cursor-pointer"
                   >
                     <Shield className="w-3.5 h-3.5" /> Admin Panel
                   </Link>
                 )}
                 <Link 
                   href="/dashboard"
-                  className="flex items-center gap-2 hover:text-[#C5A880] transition-colors text-sm font-medium cursor-pointer"
+                  className="flex items-center gap-2 hover:text-primary-light transition-colors text-sm font-medium cursor-pointer"
                 >
                   {user.avatar_url ? (
                     <img 
                       src={user.avatar_url} 
                       alt={user.full_name} 
-                      className="w-8 h-8 rounded-full object-cover border border-[#C5A880]"
+                      className="w-8 h-8 rounded-full object-cover border border-wood-light"
                     />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-[#1E463C]/10 flex items-center justify-center border border-[#1E463C]/20">
-                      <UserIcon className="w-4 h-4 text-[#1E463C]" />
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
+                      <UserIcon className="w-4 h-4 text-primary" />
                     </div>
                   )}
                   <span className="hidden sm:inline">{user.full_name}</span>
@@ -75,21 +72,29 @@ export default async function GuestLayout({
               <div className="flex items-center gap-3">
                 <Link 
                   href="/login" 
-                  className="text-sm font-medium hover:text-[#C5A880] transition-colors cursor-pointer"
+                  className="text-sm font-medium border border-wood-light text-wood-dark rounded-full px-4 py-1.5 hover:bg-bg-section transition-colors cursor-pointer"
                 >
                   Đăng Nhập
                 </Link>
                 <Link 
                   href="/register" 
-                  className="px-5 py-2.5 rounded-full text-xs font-bold tracking-wider uppercase bg-[#C5A880] text-[#FAF9F6] hover:bg-[#b0936e] transition-all hover:shadow-lg hover:shadow-[#C5A880]/15 cursor-pointer"
+                  className="text-sm font-medium border border-wood-light text-wood-dark rounded-full px-4 py-1.5 hover:bg-bg-section transition-colors cursor-pointer"
                 >
                   Đăng Ký
                 </Link>
               </div>
             )}
+
+            {/* CTA Button "Đặt phòng" */}
+            <Link 
+              href="/#rooms" 
+              className="bg-primary hover:bg-primary-light text-white rounded-full px-5 py-2 text-sm font-medium transition-colors cursor-pointer"
+            >
+              Đặt phòng
+            </Link>
             
             {/* Mobile menu trigger */}
-            <button className="md:hidden p-2 text-[#1E463C] hover:text-[#C5A880] cursor-pointer">
+            <button className="md:hidden p-2 text-primary hover:text-primary-light cursor-pointer">
               <Menu className="w-6 h-6" />
             </button>
           </div>
@@ -101,67 +106,50 @@ export default async function GuestLayout({
         {children}
       </main>
 
-      {/* Footer sang trọng */}
-      <footer className="bg-[#1E463C] text-[#FAF9F6] border-t border-[#FAF9F6]/10 py-16">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
+      {/* Footer Lơ Mơ */}
+      <footer id="contact" className="bg-dark text-bg-main/90 py-16 transition-colors duration-300">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-12">
           {/* Cột 1: Giới thiệu */}
           <div className="flex flex-col gap-4">
-            <div className="flex flex-col">
-              <span className="font-serif text-3xl font-bold tracking-wide">
-                GALOPHY
-              </span>
-              <span className="text-[10px] tracking-[0.25em] text-[#C5A880] uppercase font-medium -mt-1">
-                RETREATS
-              </span>
-            </div>
-            <p className="text-sm text-[#FAF9F6]/75 leading-relaxed font-light font-sans">
-              Nơi hội tụ giữa thiên nhiên hoang sơ và phong cách sống thượng lưu. Chuỗi homestay eco-luxury độc bản mang lại không gian thư giãn tuyệt hảo nhất cho kỳ nghỉ của bạn.
+            <span className="font-serif text-2xl font-semibold text-wood-light">
+              Lơ Mơ Homestay
+            </span>
+            <p className="text-sm text-bg-main/70 leading-relaxed font-sans font-light">
+              Một chốn lơ mơ giữa lòng Đà Lạt. Nơi bạn tìm thấy sự bình yên, tiếng thông reo và những góc nhỏ mộc mạc đậm chất Đà Lạt.
+            </p>
+            <p className="text-xs text-wood-light/80 mt-1">
+              Địa chỉ: 22 Đường Khởi Nghĩa Bắc Sơn, Phường 10, Thành phố Đà Lạt, Lâm Đồng
             </p>
           </div>
 
-          {/* Cột 2: Đường dẫn */}
+          {/* Cột 2: Đường dẫn nhanh */}
           <div>
-            <h4 className="font-serif text-lg font-bold text-[#C5A880] mb-6 font-sans">Liên Kết Nhanh</h4>
-            <ul className="flex flex-col gap-3 text-sm text-[#FAF9F6]/85 font-light font-sans">
-              <li><Link href="/" className="hover:text-[#C5A880] transition-colors cursor-pointer">Trang Chủ</Link></li>
-              <li><Link href="/#rooms" className="hover:text-[#C5A880] transition-colors cursor-pointer">Phòng & Biệt Thự</Link></li>
-              <li><Link href="/guest-portal" className="hover:text-[#C5A880] transition-colors cursor-pointer">Tra Cứu Đặt Phòng</Link></li>
-              <li><Link href="/login" className="hover:text-[#C5A880] transition-colors cursor-pointer">Đăng Nhập / Đăng Ký</Link></li>
+            <h4 className="text-wood-light text-base font-semibold mb-6">Đường dẫn nhanh</h4>
+            <ul className="flex flex-col gap-3 text-sm text-primary-light font-light">
+              <li><Link href="/#rooms" className="hover:underline transition-colors cursor-pointer">Phòng & Không gian</Link></li>
+              <li><Link href="/#about" className="hover:underline transition-colors cursor-pointer">Vị trí</Link></li>
+              <li><Link href="/guest-portal" className="hover:underline transition-colors cursor-pointer">Tra cứu đặt phòng</Link></li>
+              <li><Link href="/login" className="hover:underline transition-colors cursor-pointer">Đăng nhập / Đăng ký</Link></li>
             </ul>
           </div>
 
-          {/* Cột 3: Chi nhánh */}
+          {/* Cột 3: Liên hệ */}
           <div>
-            <h4 className="font-serif text-lg font-bold text-[#C5A880] mb-6">Chi Nhánh</h4>
-            <ul className="flex flex-col gap-3 text-sm text-[#FAF9F6]/85 font-light">
-              <li>
-                <strong className="font-semibold text-[#FAF9F6]">Đà Lạt:</strong>
-                <p className="text-xs text-[#FAF9F6]/70 mt-1">Hồ Tuyền Lâm, Phường 3, Đà Lạt, Lâm Đồng</p>
-              </li>
-              <li>
-                <strong className="font-semibold text-[#FAF9F6]">Nha Trang:</strong>
-                <p className="text-xs text-[#FAF9F6]/70 mt-1">Đường Trần Phú, Phường Lộc Thọ, Nha Trang</p>
-              </li>
-            </ul>
-          </div>
-
-          {/* Cột 4: Hotline & Hỗ trợ */}
-          <div>
-            <h4 className="font-serif text-lg font-bold text-[#C5A880] mb-6">Liên Hệ</h4>
-            <ul className="flex flex-col gap-3 text-sm text-[#FAF9F6]/85 font-light">
-              <li>Hotline: <span className="font-semibold text-[#C5A880] hover:underline cursor-pointer">1900 8888</span></li>
-              <li>Email: contact@galophy.com</li>
-              <li>Thời gian nhận phòng: 14:00</li>
-              <li>Thời gian trả phòng: 12:00</li>
+            <h4 className="text-wood-light text-base font-semibold mb-6">Liên hệ với Mơ</h4>
+            <ul className="flex flex-col gap-3 text-sm text-bg-main/80 font-light">
+              <li>Hotline / Zalo: <span className="font-medium text-wood-light hover:underline cursor-pointer">036.757.3242</span></li>
+              <li>Instagram: <a href="https://instagram.com/lomohomestay.dalat" target="_blank" rel="noopener noreferrer" className="font-medium text-wood-light hover:underline cursor-pointer">@lomohomestay.dalat</a></li>
+              <li>Giờ nhận phòng: 14:00</li>
+              <li>Giờ trả phòng: 12:00</li>
             </ul>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-[#FAF9F6]/10 flex flex-col sm:flex-row items-center justify-between text-xs text-[#FAF9F6]/60 font-light gap-4 font-sans">
-          <p>© 2026 Galophy Retreats. All rights reserved.</p>
-          <div className="flex gap-6">
-            <a href="#" className="hover:text-[#C5A880] transition-colors cursor-pointer">Điều khoản sử dụng</a>
-            <a href="#" className="hover:text-[#C5A880] transition-colors cursor-pointer">Chính sách bảo mật</a>
+        <div className="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-bg-main/10 flex flex-col sm:flex-row items-center justify-between text-sm text-[#888] font-light gap-4">
+          <p>© 2026 Lơ Mơ Homestay · Đà Lạt</p>
+          <div className="flex gap-6 text-xs">
+            <a href="#" className="hover:text-wood-light transition-colors cursor-pointer">Điều khoản sử dụng</a>
+            <a href="#" className="hover:text-wood-light transition-colors cursor-pointer">Chính sách bảo mật</a>
           </div>
         </div>
       </footer>

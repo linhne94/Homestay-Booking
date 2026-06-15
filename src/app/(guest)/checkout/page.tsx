@@ -50,10 +50,10 @@ export default async function CheckoutPage({
     initialPricing = await calculateBookingPrice(roomType.id, inDate, outDate);
   } catch (err: any) {
     return (
-      <div className="max-w-md mx-auto my-32 text-center bg-white p-8 rounded-3xl border border-[#1E463C]/10 shadow-lg text-[#1E463C]">
-        <h2 className="font-serif text-2xl font-bold mb-4">Lỗi Đặt Lịch</h2>
+      <div className="max-w-md mx-auto my-32 text-center bg-white p-8 rounded-3xl border border-wood-light/35 shadow-lg text-wood-dark">
+        <h2 className="font-serif text-2xl font-semibold mb-4 text-wood-dark">Lỗi đặt lịch</h2>
         <p className="text-sm font-light text-red-500 mb-6">{err.message}</p>
-        <a href="/" className="px-6 py-3 bg-[#1E463C] text-[#FAF9F6] rounded-xl text-xs font-bold uppercase tracking-wider">
+        <a href="/" className="px-6 py-3 bg-primary hover:bg-primary-light text-white rounded-xl text-xs font-semibold tracking-wide transition-all">
           Quay lại trang chủ
         </a>
       </div>

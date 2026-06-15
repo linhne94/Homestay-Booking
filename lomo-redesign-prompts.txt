@@ -1,0 +1,292 @@
+================================================================
+LOMO HOMESTAY — REDESIGN PROMPTS CHO ANTIGRAVITY
+Dành cho: galophy-homestay.vercel.app → Lơ Mơ Homestay vibe
+Stack: Next.js 14 + Tailwind CSS
+================================================================
+
+// === COLOR SYSTEM (dùng chung cho tất cả prompts) ===
+// --primary:       #3D5A40  (nav, CTA, header bg)
+// --primary-light: #7A9E7E  (icon, accent, link hover)
+// --wood-dark:     #6B4C2A  (heading, title text)
+// --wood-light:    #C8B99A  (divider, tag, border)
+// --bg-main:       #F7F5F0  (page background)
+// --bg-section:    #EDE9E1  (alternate section bg)
+// --highlight:     #B8C9BB  (card bg, badge)
+// --dark:          #1C1A17  (footer, dark sections)
+// Font: Inter (heading, weight 600) + system-ui (body)
+
+================================================================
+PROMPT 1 — GLOBAL SETUP (Chạy cái này TRƯỚC TIÊN)
+================================================================
+
+You are redesigning the existing Next.js website at galophy-homestay.vercel.app
+to match the brand identity of Lơ Mơ Homestay Đà Lạt (@lomohomestay.dalat).
+
+BRAND TRANSFORMATION:
+- FROM: Eco-luxury, formal, dark premium, all-caps headings
+- TO: Warm, dreamy, cozy, natural, slow-living vibe
+- Think: morning fog in Da Lat, pine trees, warm wood, chill friend group
+
+STEP 1 — Update globals.css (or tailwind.config.ts) with this design system:
+
+:root {
+  --primary: #3D5A40;
+  --primary-light: #7A9E7E;
+  --wood-dark: #6B4C2A;
+  --wood-light: #C8B99A;
+  --bg-main: #F7F5F0;
+  --bg-section: #EDE9E1;
+  --highlight: #B8C9BB;
+  --dark: #1C1A17;
+}
+
+In tailwind.config.ts add:
+colors: {
+  primary: '#3D5A40',
+  'primary-light': '#7A9E7E',
+  'wood-dark': '#6B4C2A',
+  'wood-light': '#C8B99A',
+  'bg-main': '#F7F5F0',
+  'bg-section': '#EDE9E1',
+  highlight: '#B8C9BB',
+  dark: '#1C1A17',
+}
+
+STEP 2 — Update font in layout.tsx:
+- Import Inter from next/font/google
+- Apply to body: className={inter.className}
+
+STEP 3 — Rewrite the shared Navbar component:
+- Logo: text "Lơ Mơ" — font-weight 600, color #6B4C2A, font-size 20px
+  (replace "GALOPHYRETREATS")
+- Nav links: Phòng & Không gian / Vị trí / Tra cứu đặt phòng / Liên hệ
+  color: #3D5A40, font-size 14px, no uppercase
+- Auth buttons (Đăng Nhập / Đăng Ký): keep functionality,
+  restyle to: text-sm, border border-wood-light, text-wood-dark, rounded-full px-4 py-1.5
+- CTA button "Đặt phòng": bg-primary text-white rounded-full px-5 py-2 text-sm
+- Navbar bg: #F7F5F0, border-bottom: 1px solid #C8B99A, sticky top-0 z-50
+- Remove all uppercase/tracking-widest from nav
+
+STEP 4 — Rewrite the shared Footer component:
+- bg: #1C1A17
+- Left col: "Lơ Mơ Homestay" in #C8B99A + tagline "Một chốn lơ mơ giữa lòng Đà Lạt"
+- Middle col: quick links in #7A9E7E
+- Right col: Hotline 036.757.3242, Instagram @lomohomestay.dalat, address
+- Bottom bar: "© 2026 Lơ Mơ Homestay · Đà Lạt" in #888, text-sm
+- Remove all uppercase section titles in footer
+
+DO NOT touch any booking logic, API calls, or auth flow.
+Only change visual/styling layer.
+
+================================================================
+PROMPT 2 — HOMEPAGE ( / )
+================================================================
+
+Redesign the Homepage (/) visual layer only. Keep all existing
+booking search functionality and data fetching intact.
+
+HERO SECTION (replace current dark overlay hero):
+- Keep full-width layout
+- Change overlay gradient to: linear-gradient(to top, rgba(28,26,23,0.6), transparent)
+- H1 text: "Một chốn lơ mơ\ngiữa lòng Đà Lạt"
+  → font-size: clamp(36px, 6vw, 64px), font-weight: 600, color: white
+  → line-height: 1.2, NO uppercase, NO tracking-widest
+- Subtext: "Nhà nguyên căn · Không gian riêng tư · Gần trung tâm"
+  → color: rgba(255,255,255,0.85), font-size: 16px, font-weight: 400
+- Keep the booking search bar, restyle it:
+  → bg: white, border-radius: 16px, padding: 20px 24px
+  → Labels: color #6B4C2A, font-size 13px
+  → Inputs: border 1px #C8B99A, focus border #3D5A40
+  → Submit button: bg #3D5A40 text white rounded-xl
+
+HIGHLIGHT STRIP (add after hero, before rooms):
+- 3 items in a row, bg: #EDE9E1, py-10
+- Item 1: icon 🌲 + "Giữa lòng thành phố" + "Cách quảng trường 2 phút"
+- Item 2: icon 🏠 + "Nhà nguyên căn" + "Không gian riêng tư hoàn toàn"
+- Item 3: icon 🫧 + "Ấm cúng như ở nhà" + "Bếp đầy đủ, sân riêng"
+- Text: title color #6B4C2A font-weight 500 / subtitle color #7A9E7E font-size 13px
+
+ROOMS SECTION:
+- Section title: "Các không gian của Mơ" — color #6B4C2A, font-weight 600, NO uppercase
+- Sub: "Mỗi căn là một trải nghiệm khác nhau" — color #7A9E7E
+- Room cards: keep data, restyle:
+  → Card bg: white, border: 0.5px solid #C8B99A, border-radius: 12px
+  → Room name: color #6B4C2A, font-weight 600, NO uppercase
+  → Price: color #3D5A40, font-weight 600
+  → Badge "Còn trống": bg #B8C9BB color #3D5A40 rounded-full text-xs
+  → "Đặt Ngay" button: bg #3D5A40 text white rounded-xl
+
+ABOUT SECTION:
+- bg: #3D5A40
+- Title: "Lơ Mơ là gì?" — white, font-weight 600
+- Body text: white opacity-80, line-height 1.8, NO uppercase
+- Replace "5-star" / "eco-luxury" / "thượng lưu" language with:
+  warm, personal, handwritten-feeling copy
+
+REMOVE completely:
+- Any element with text "GALOPHYRETREATS"
+- Any ALL_CAPS decorative text like "Bản hòa ca của thiên nhiên & sự sang trọng"
+- Replace with: "Một nơi để thực sự nghỉ ngơi"
+
+================================================================
+PROMPT 3 — ROOM DETAIL PAGE ( /rooms/[id] )
+================================================================
+
+Redesign the Room Detail page (/rooms/[id]) visual layer only.
+Keep all existing data fetching, booking form logic, and review system.
+
+BREADCRUMB:
+- "← Quay lại" — color #3D5A40, font-size 14px, no uppercase
+
+IMAGE GALLERY:
+- Keep carousel logic
+- Add rounded-2xl to images, overflow-hidden
+- Dots/arrows: color #3D5A40
+
+ROOM HEADER:
+- Branch badge: bg #EDE9E1, color #7A9E7E, rounded-full, font-size 12px
+- Room name H1: color #6B4C2A, font-weight 600, font-size 32px, NO uppercase
+- Capacity badge: bg #B8C9BB, color #3D5A40, rounded-full, text-xs
+- Rating: color #6B4C2A
+
+DESCRIPTION SECTION:
+- Title "Giới Thiệu Không Gian" → change to "Về không gian này"
+  color #6B4C2A, font-weight 600, NO uppercase, border-left 3px solid #7A9E7E, pl-3
+- Body: color #6B4C2A opacity-80, line-height 1.8
+
+AMENITIES:
+- Title "Trang Thiết Bị & Tiện Nghi" → "Tiện nghi có sẵn"
+- Icon chips: bg #EDE9E1, color #6B4C2A, rounded-full, text-sm, px-3 py-1
+
+REVIEWS SECTION:
+- Title "Đánh Giá Từ Khách Hàng" → "Khách nói gì về Mơ"
+- Rating numbers: color #3D5A40
+- "Chưa có đánh giá" empty state: color #7A9E7E, italic
+
+BOOKING SIDEBAR (right column):
+- Card: bg white, border 1px solid #C8B99A, rounded-2xl, p-6
+- "Giá tốt nhất trực tiếp" badge: bg #EDE9E1, color #7A9E7E, text-xs, rounded-full
+- Price: color #3D5A40, font-size 24px, font-weight 700
+- Date inputs: border 1px #C8B99A, focus border #3D5A40, rounded-xl
+- "Tiến hành đặt phòng" button: bg #3D5A40, text white, rounded-xl, w-full, py-3
+- Trust text "Bảo mật thông tin tuyệt đối": color #7A9E7E, text-xs, text-center
+
+================================================================
+PROMPT 4 — GUEST PORTAL ( /guest-portal )
+================================================================
+
+Redesign the Guest Portal page (/guest-portal) visual layer only.
+Keep the booking lookup form logic and API calls intact.
+
+PAGE LAYOUT:
+- bg: #F7F5F0, min-height: 100vh
+- Center content vertically and horizontally
+
+LOOKUP CARD:
+- bg: white, border: 1px solid #C8B99A, border-radius: 16px
+- padding: 40px, max-width: 480px, mx-auto, mt-16
+- Top icon: small leaf or home icon, color #7A9E7E, mb-4
+
+HEADER:
+- Title "Tra Cứu Đặt Phòng" → "Tìm đơn đặt phòng của bạn"
+  color #6B4C2A, font-weight 600, font-size 22px, text-center, NO uppercase
+- Subtitle: "Nhập mã đặt phòng và số điện thoại để xem chi tiết hoặc nhận QR check-in"
+  color #7A9E7E, font-size 14px, text-center, line-height 1.6
+
+FORM FIELDS:
+- Label: color #6B4C2A, font-size 13px, font-weight 500, mb-1
+- Input: border 1px solid #C8B99A, rounded-xl, px-4 py-3
+  focus: border-color #3D5A40, outline none
+  placeholder: color #C8B99A
+
+- "Mã đặt phòng (Booking ID)" → keep label, keep input name/id
+- "Số điện thoại liên hệ" → keep label, keep input name/id
+
+- Submit button "Tìm kiếm đơn đặt":
+  bg #3D5A40, text white, rounded-xl, w-full, py-3, font-size 15px
+  hover: bg #4d7050
+
+BOTTOM HELP TEXT (add below card):
+- "Cần hỗ trợ? Liên hệ Zalo: 036.757.3242"
+  color #7A9E7E, text-sm, text-center, mt-6
+
+================================================================
+PROMPT 5 — LOGIN & REGISTER PAGES ( /login, /register )
+================================================================
+
+Redesign /login and /register pages visual layer only.
+Keep all auth logic, form validation, and API calls intact.
+
+SHARED LAYOUT (both pages):
+- Split layout: left 50% bg #EDE9E1, right 50% bg #F7F5F0
+- Left side (decorative):
+  · Large text "Lơ Mơ" — color #6B4C2A, font-size 64px, font-weight 700
+  · Below: "Một chốn lơ mơ giữa lòng Đà Lạt" — color #7A9E7E, font-size 16px
+  · Bottom: small address list in color #C8B99A, font-size 13px
+- Right side: form centered vertically, max-width 380px, mx-auto
+
+LOGIN FORM RESTYLE:
+- Title "Đăng Nhập" — color #6B4C2A, font-weight 600, font-size 24px
+- Subtitle: "Chào mừng bạn trở lại 🌿" — color #7A9E7E, font-size 14px
+- Labels: color #6B4C2A, font-size 13px, font-weight 500
+- Inputs: border 1px #C8B99A, rounded-xl, px-4 py-3, focus border #3D5A40
+- Submit "Đăng Nhập": bg #3D5A40, text white, w-full, rounded-xl, py-3
+- Link to register: color #3D5A40, underline
+
+REGISTER FORM RESTYLE:
+- Title "Tạo tài khoản" — color #6B4C2A, font-weight 600, font-size 24px
+- Subtitle: "Đặt phòng dễ dàng hơn với tài khoản Lơ Mơ" — color #7A9E7E
+- Same input/button styles as login above
+- Link to login: color #3D5A40
+
+================================================================
+GLOBAL RULES (áp dụng cho TẤT CẢ prompts trên)
+================================================================
+
+1. DO NOT change any:
+   - API routes or fetch calls
+   - Database queries
+   - Auth logic (NextAuth / custom auth)
+   - Form submission handlers
+   - URL routes / file structure
+
+2. REMOVE / REPLACE these patterns everywhere:
+   - ALL CAPS text → Sentence case
+   - "GALOPHYRETREATS" → "Lơ Mơ" hoặc "Lơ Mơ Homestay"
+   - "Eco-Luxury" / "thượng lưu" / "đẳng cấp 5 sao" → bỏ hoặc dùng ngôn ngữ ấm áp hơn
+   - tracking-widest class → xóa
+   - text-uppercase / uppercase → xóa
+
+3. COLOR RULES:
+   - Never use black (#000) for body text → dùng #6B4C2A
+   - Never use generic gray → dùng #7A9E7E cho subtext
+   - CTA buttons: luôn bg #3D5A40 text white
+   - Borders: luôn #C8B99A (không dùng gray-200 hay gray-300)
+
+4. TYPOGRAPHY RULES:
+   - Headings: Inter, font-weight 600, color #6B4C2A, sentence case
+   - Body: system-ui, font-weight 400, color #6B4C2A opacity-75, line-height 1.8
+   - Labels/badges: font-size 12-13px, color #7A9E7E
+   - NO: font-weight 700+ on body text, NO: letter-spacing on normal text
+
+5. SPACING:
+   - Section padding: py-16 to py-24
+   - Card padding: p-5 to p-7
+   - Generous whitespace — Lơ Mơ vibe = airy, không bị chật
+
+================================================================
+THỨ TỰ NÊN CHẠY TRONG ANTIGRAVITY:
+================================================================
+
+Bước 1: Chạy PROMPT 1 (Global Setup) → commit
+Bước 2: Chạy PROMPT 2 (Homepage) → review trong browser
+Bước 3: Chạy PROMPT 3 (Room Detail) → kiểm tra booking form còn hoạt động
+Bước 4: Chạy PROMPT 4 (Guest Portal) → kiểm tra lookup vẫn chạy
+Bước 5: Chạy PROMPT 5 (Login/Register) → kiểm tra auth flow
+
+Sau mỗi bước, nói với agent:
+"Open the browser and take a screenshot of [trang vừa sửa].
+Check that all forms still work. Do not proceed to next step
+until the current page looks correct."
+
+================================================================

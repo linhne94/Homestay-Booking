@@ -33,81 +33,93 @@ function LoginContent() {
   };
 
   return (
-    <div className="max-w-md mx-auto my-20 px-6">
-      <div className="bg-white rounded-3xl border border-[#1E463C]/10 shadow-2xl p-8 flex flex-col gap-6 relative">
-        <Link 
-          href="/" 
-          className="absolute top-8 left-8 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[#1E463C]/60 hover:text-[#C5A880] transition-colors cursor-pointer"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" /> Trang chủ
-        </Link>
-
-        <div className="text-center flex flex-col gap-1.5 mt-8">
-          <div className="flex flex-col mb-2">
-            <span className="font-serif text-2xl font-black tracking-wide">GALOPHY</span>
-            <span className="text-[9px] tracking-[0.25em] text-[#C5A880] uppercase font-bold -mt-1">RETREATS</span>
-          </div>
-          <h2 className="font-serif text-xl font-bold">Chào Mừng Trở Lại</h2>
-          <p className="text-xs text-[#1E463C]/70 font-light">Đăng nhập tài khoản thành viên để quản lý kỳ nghỉ &amp; tích luỹ điểm thưởng.</p>
+    <div className="min-h-[75vh] grid grid-cols-1 md:grid-cols-2">
+      {/* Left side: Decorative */}
+      <div className="hidden md:flex flex-col justify-between bg-bg-section p-16 text-wood-dark border-r border-wood-light/30">
+        <div>
+          <h1 className="font-serif text-6xl font-bold tracking-wide">Lơ Mơ</h1>
+          <p className="text-primary-light text-lg mt-3 font-normal">Một chốn lơ mơ giữa lòng Đà Lạt</p>
         </div>
+        <div className="text-wood-light text-xs font-light leading-relaxed">
+          <p className="font-semibold text-wood-dark">Lơ Mơ Homestay Đà Lạt</p>
+          <p className="mt-1">Địa chỉ: 22 Đường Khởi Nghĩa Bắc Sơn, Phường 10, Đà Lạt</p>
+          <p>Hotline / Zalo: 036.757.3242</p>
+        </div>
+      </div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2.5 rounded-xl text-xs font-semibold">
-            ⚠️ {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <input type="hidden" name="redirectTo" value={redirectTo} />
-
-          {/* Email */}
-          <div className="flex flex-col gap-1.5 text-left">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-[#1E463C]/70 flex items-center gap-1.5">
-              <Mail className="w-3.5 h-3.5 text-[#C5A880]" /> Địa Chỉ Email
-            </label>
-            <input
-              type="email"
-              name="email"
-              required
-              placeholder="yourmail@gmail.com"
-              className="w-full bg-[#FAF9F6] border border-[#1E463C]/10 rounded-xl px-4 py-3 text-xs focus:ring-1 focus:ring-[#C5A880] focus:border-[#C5A880] outline-none font-medium text-[#1E463C]"
-            />
-          </div>
-
-          {/* Mật khẩu */}
-          <div className="flex flex-col gap-1.5 text-left">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-[#1E463C]/70 flex items-center gap-1.5">
-              <Lock className="w-3.5 h-3.5 text-[#C5A880]" /> Mật Khẩu
-            </label>
-            <input
-              type="password"
-              name="password"
-              required
-              placeholder="••••••••"
-              className="w-full bg-[#FAF9F6] border border-[#1E463C]/10 rounded-xl px-4 py-3 text-xs focus:ring-1 focus:ring-[#C5A880] focus:border-[#C5A880] outline-none font-medium text-[#1E463C]"
-            />
-          </div>
-
-          {/* Nút bấm */}
-          <button
-            type="submit"
-            disabled={isPending}
-            className="w-full h-12 bg-[#1E463C] hover:bg-[#C5A880] disabled:opacity-55 text-[#FAF9F6] font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center justify-center gap-2 group mt-2 cursor-pointer"
+      {/* Right side: Form */}
+      <div className="flex items-center justify-center bg-bg-main py-12 px-6">
+        <div className="w-full max-w-[380px] flex flex-col gap-6">
+          <Link 
+            href="/" 
+            className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary-light transition-colors cursor-pointer w-fit"
           >
-            {isPending ? 'Đang xác thực...' : 'Đăng Nhập'}
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
-        </form>
-
-        <div className="text-center text-xs text-[#1E463C]/70 font-light border-t border-[#1E463C]/5 pt-4 mt-2">
-          Chưa có tài khoản thành viên?{' '}
-          <Link href="/register" className="text-[#C5A880] font-semibold hover:underline cursor-pointer">
-            Đăng ký ngay
+            <ArrowLeft className="w-3.5 h-3.5" /> Trang chủ
           </Link>
-        </div>
 
-        <div className="flex items-center justify-center gap-1.5 text-[9px] text-[#1E463C]/50 uppercase tracking-widest font-semibold mt-[-8px]">
-          <Shield className="w-3 h-3 text-[#C5A880]" /> Hệ thống bảo mật 2 lớp SSL
+          <div className="flex flex-col gap-1.5 mt-2">
+            <h2 className="font-serif text-2xl font-semibold text-wood-dark">Đăng nhập</h2>
+            <p className="text-sm text-primary-light">Chào mừng bạn trở lại 🌿</p>
+          </div>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2.5 rounded-xl text-xs font-semibold">
+              ⚠️ {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <input type="hidden" name="redirectTo" value={redirectTo} />
+
+            {/* Email */}
+            <div className="flex flex-col gap-1.5 text-left">
+              <label className="text-sm font-medium text-wood-dark mb-1 flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5 text-primary-light" /> Địa chỉ Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                required
+                placeholder="yourmail@gmail.com"
+                className="w-full bg-white border border-wood-light rounded-xl px-4 py-3 text-sm focus:border-primary focus:outline-none text-wood-dark placeholder-wood-light/50"
+              />
+            </div>
+
+            {/* Mật khẩu */}
+            <div className="flex flex-col gap-1.5 text-left">
+              <label className="text-sm font-medium text-wood-dark mb-1 flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-primary-light" /> Mật khẩu
+              </label>
+              <input
+                type="password"
+                name="password"
+                required
+                placeholder="••••••••"
+                className="w-full bg-white border border-wood-light rounded-xl px-4 py-3 text-sm focus:border-primary focus:outline-none text-wood-dark placeholder-wood-light/50"
+              />
+            </div>
+
+            {/* Nút bấm */}
+            <button
+              type="submit"
+              disabled={isPending}
+              className="w-full py-3 bg-primary hover:bg-primary-light text-white font-semibold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2 group mt-2 cursor-pointer"
+            >
+              {isPending ? 'Đang xác thực...' : 'Đăng nhập'}
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </form>
+
+          <div className="text-center text-xs text-wood-dark/70 font-light border-t border-wood-light/35 pt-4 mt-2">
+            Chưa có tài khoản thành viên?{' '}
+            <Link href="/register" className="text-primary font-semibold hover:underline cursor-pointer">
+              Đăng ký ngay
+            </Link>
+          </div>
+
+          <div className="flex items-center justify-center gap-1.5 text-[10px] text-primary-light font-semibold mt-[-8px]">
+            <Shield className="w-3.5 h-3.5 text-primary-light" /> Hệ thống bảo mật 2 lớp SSL
+          </div>
         </div>
       </div>
     </div>
