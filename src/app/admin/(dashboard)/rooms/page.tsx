@@ -13,7 +13,7 @@ export default async function AdminRoomsPage() {
 
   const branchId = staff.staff_profile.branch_id;
 
-  // Lấy các RoomTypes thuộc chi nhánh kèm Rooms tương ứng và Amenities liên kết
+  // Lấy các RoomTypes thuộc chi nhánh kèm Rooms tương ứng, Amenities liên kết và Room Images
   const roomTypes = await prisma.roomType.findMany({
     where: { branch_id: branchId },
     include: {
@@ -24,6 +24,9 @@ export default async function AdminRoomsPage() {
         include: {
           amenity: true
         }
+      },
+      room_images: {
+        orderBy: { sort_order: 'asc' }
       }
     },
     orderBy: { base_price: 'asc' }
@@ -46,6 +49,11 @@ export default async function AdminRoomsPage() {
         icon: rta.amenity.icon,
         category: rta.amenity.category
       }
+    })),
+    room_images: rt.room_images.map(img => ({
+      id: img.id,
+      image_url: img.image_url,
+      sort_order: img.sort_order
     }))
   }));
 

@@ -2,6 +2,8 @@ import React from 'react';
 import Link from 'next/link';
 import { getSessionStaff } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import { prisma } from '@/lib/prisma';
+import BranchSwitcher from '@/components/admin/BranchSwitcher';
 import { 
   LayoutDashboard, 
   CalendarRange, 
@@ -32,6 +34,15 @@ export default async function AdminLayout({
   }
 
   const isAdmin = staff.staff_profile.role === 'ADMIN';
+
+  // Lấy danh sách chi nhánh hoạt động nếu là admin
+  const branches = isAdmin
+    ? await prisma.branch.findMany({
+        where: { is_active: true },
+        select: { id: true, name: true },
+        orderBy: { name: 'asc' },
+      })
+    : [];
 
   const menuItems = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -119,9 +130,12 @@ export default async function AdminLayout({
         <header className="h-20 bg-[#161920] border-b border-[#232731] flex items-center justify-between px-8 sticky top-0 z-30">
           <div className="flex items-center gap-2">
             <span className="text-xs text-[#FAF9F6]/50">Chi nhánh đang quản lý:</span>
-            <span className="text-xs font-bold text-[#C5A880] bg-[#C5A880]/10 px-2.5 py-1 rounded border border-[#C5A880]/20">
-              {staff.staff_profile.branch.name}
-            </span>
+            <BranchSwitcher
+              branches={branches}
+              currentBranchId={staff.staff_profile.branch_id}
+              currentBranchName={staff.staff_profile.branch.name}
+              isAdmin={isAdmin}
+            />
           </div>
           <div className="flex items-center gap-4 text-xs font-light text-[#FAF9F6]/70">
             <span>Hệ thống: Live</span>
