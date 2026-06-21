@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { getSessionUser } from '@/lib/auth';
 import { LogOut, User as UserIcon, Calendar, Menu, Shield } from 'lucide-react';
+import NavigationProgressBar from '@/components/ui/NavigationProgressBar';
 
 export default async function GuestLayout({
   children,
@@ -12,6 +13,7 @@ export default async function GuestLayout({
 
   return (
     <div className="flex flex-col min-h-screen bg-bg-main text-wood-dark font-sans selection:bg-primary-light/30">
+      <NavigationProgressBar />
       {/* Navbar Lơ Mơ Homestay */}
       <header className="sticky top-0 z-50 backdrop-blur-md bg-bg-main/90 border-b border-wood-light">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
@@ -28,13 +30,10 @@ export default async function GuestLayout({
               Phòng & Không gian
             </Link>
             <Link href="/#about" className="text-primary hover:text-primary-light transition-colors cursor-pointer">
-              Vị trí
+              Về chúng tôi
             </Link>
             <Link href="/guest-portal" className="text-primary hover:text-primary-light transition-colors cursor-pointer">
               Tra cứu đặt phòng
-            </Link>
-            <Link href="#contact" className="text-primary hover:text-primary-light transition-colors cursor-pointer">
-              Liên hệ
             </Link>
           </nav>
 

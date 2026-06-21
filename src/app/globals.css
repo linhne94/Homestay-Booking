@@ -133,6 +133,7 @@
   }
   html {
     @apply font-sans;
+    scroll-behavior: smooth;
   }
   
   /* Đảm bảo toàn bộ các phần tử tương tác click được luôn có cursor pointer */

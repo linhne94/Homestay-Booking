@@ -4,6 +4,7 @@ import { getSessionStaff } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import BranchSwitcher from '@/components/admin/BranchSwitcher';
+import NavigationProgressBar from '@/components/ui/NavigationProgressBar';
 import { 
   LayoutDashboard, 
   CalendarRange, 
@@ -60,6 +61,7 @@ export default async function AdminLayout({
 
   return (
     <div className="flex min-h-screen bg-[#0B0C10] text-[#FAF9F6] font-sans selection:bg-[#C5A880]/30 antialiased">
+      <NavigationProgressBar />
       {/* Sidebar */}
       <aside className="w-64 bg-[#161920] border-r border-[#232731] flex flex-col fixed inset-y-0 left-0 z-40">
         {/* Header Logo */}
